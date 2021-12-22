@@ -5,6 +5,7 @@ import pydoc
 import random
 import os
 import sys
+import getopt
 
 UNIQUE_LETTERS_COUNT = 7
 
@@ -71,12 +72,26 @@ class Bee:
             else:
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
             print(f"{words_count - len(words_found)} words remaining")
-                
+          
+print_all = False
+
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "l", ["list"])
+except getopt.GetoptError as err:
+    print("error options")
+    sys.exit(2)
+for o, a in opts:
+    if o == "-l":
+        print_all = True
+
         
 english_words = load_words()
 bees = Bee.create_bees(english_words)
 bee = bees[random.randint(0, len(bees)-1)]
-bee.guess()
+if print_all:
+    pydoc.pager('\n'.join(str(b) for b in bees))
+else:
+    bee.guess()
 
 #fitting_words = list(filter(is_valid, english_words))
 #print(f"{len(bees)} words with {UNIQUE_LETTERS_COUNT} unique letters:")
