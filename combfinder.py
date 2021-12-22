@@ -2,12 +2,20 @@
 
 import urllib.request
 import pydoc
+import random
+import os
+import sys
 
 UNIQUE_LETTERS_COUNT = 7
 
+CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "Wow!", "Perfect!"]
+INCORRECT_WORDS = ["Incorrect", "Nope", "Not a word", "Try again"]
+
+os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
+
 def load_words():
 #    urllib.request.urlretrieve("https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt", "words_alpha.txt")
-    with open("words_alpha.txt") as word_file:
+    with open("./words.txt") as word_file:
         valid_words = word_file.read().split()
 
     return [word for word in valid_words if len(word) >= 3]
@@ -30,7 +38,7 @@ class Bee:
             for w in english_words:
                 if w != word and set(w).issubset(set(word)):
                     other_words.add(w)
-            if 10 <= len(other_words) <= 30:
+            if 10 <= len(other_words) <= 20:
                 return Bee(set(word), word, other_words)
         return None
                 
@@ -46,13 +54,34 @@ class Bee:
     def __str__(self):
         return f"{''.join(self.letters)} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
         
+    def guess(self):
+        words_count = len(self.other_words)+1
+        print(f"{''.join(self.letters)} -> {words_count}")
+        words_found = set()
+        while len(words_found) < words_count:
+            word = input()
+            if word in words_found:
+                print("Already found")
+            elif word in self.other_words:
+                print(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
+                words_found.add(word)
+            elif word == self.pangram:
+                print("PANGRAM!")
+                words_found.add(word)
+            else:
+                print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
+            print(f"{words_count - len(words_found)} words remaining")
+                
+        
 english_words = load_words()
 bees = Bee.create_bees(english_words)
+bee = bees[random.randint(0, len(bees)-1)]
+bee.guess()
 
 #fitting_words = list(filter(is_valid, english_words))
 #print(f"{len(bees)} words with {UNIQUE_LETTERS_COUNT} unique letters:")
 
-pydoc.pager('\n'.join(str(b) for b in bees))
+#pydoc.pager('\n'.join(str(b) for b in bees))
 
 #    for i in range(0, 100):
 #        print(f"{fitting_words[i]} -> {''.join(set(fitting_words[i]))}")
