@@ -6,6 +6,7 @@ import random
 import os
 import sys
 import getopt
+import datetime
 
 UNIQUE_LETTERS_COUNT = 7
 
@@ -95,6 +96,7 @@ elif search_bee is not None:
     bee = [b for b in bees if b.letters == set(search_bee)][0]
     print(bee)
 else:
+    random.seed((datetime.date.today() - datetime.datetime.utcfromtimestamp(0).date()).days)
     bee = bees[random.randint(0, len(bees)-1)]
     bee.guess()
 
