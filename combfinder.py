@@ -58,12 +58,12 @@ class Bee:
         
     def guess(self):
         words_count = len(self.other_words)+1
-        print(f"{''.join(self.letters)} -> {words_count}")
+        print(f"{''.join(self.letters)} -> {words_count} words to find")
         words_found = set()
         while len(words_found) < words_count:
             word = input()
             if word in words_found:
-                print("Already found")
+                print("Word already found")
             elif word in self.other_words:
                 print(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
                 words_found.add(word)
