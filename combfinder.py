@@ -83,6 +83,7 @@ class Bee:
             else:
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
             print(f"{words_count - len(words_found)} words remaining")
+        print("You found everything! Congratulations Jessica!")
           
 print_all = False
 search_bee = None
