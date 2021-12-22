@@ -24,25 +24,29 @@ def load_words():
 
 class Bee:
     letters: set
+    center: str
     pangram: str
     other_words: set
     
-    def __init__(self, letters: set, pangram: str, other_words: set):
+    def __init__(self, letters: set, center: str, pangram: str, other_words: set):
         self.letters = letters
+        self.center = center
         self.pangram = pangram
         self.other_words = other_words
         
     @staticmethod
     def create_bee(word: str):
+        res = set()
         has_7_letters = len(word) >= UNIQUE_LETTERS_COUNT and len(''.join(set(word))) == UNIQUE_LETTERS_COUNT
         if has_7_letters:
-            other_words = set()
-            for w in english_words:
-                if w != word and set(w).issubset(set(word)):
-                    other_words.add(w)
-            if 10 <= len(other_words) <= 20:
-                return Bee(set(word), word, other_words)
-        return None
+            for center in set(word):
+                other_words = set()
+                for w in english_words:
+                    if w != word and set(w).issubset(set(word)) and center in w:
+                        other_words.add(w)
+                if 10 <= len(other_words) <= 20:
+                    res.add(Bee(set(word), center, word, other_words))
+        return res
                 
     @staticmethod
     def create_bees(words):
@@ -50,20 +54,26 @@ class Bee:
         for word in words:
             bee = Bee.create_bee(word)
             if bee is not None:
-                bees.append(bee)
+                bees.extend(list(bee))
         return bees
+        
+    def show_letters(self):
+        other_letters = self.letters - set(self.center)
+        return f"{self.center}{''.join(other_letters)}"
     
     def __str__(self):
-        return f"{''.join(self.letters)} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
+        return f"{self.show_letters()} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
         
     def guess(self):
         words_count = len(self.other_words)+1
-        print(f"{''.join(self.letters)} -> {words_count} words to find")
+        print(f"{self.show_letters()} -> {words_count} words to find")
         words_found = set()
         while len(words_found) < words_count:
             word = input()
             if word in words_found:
                 print("Word already found")
+            elif self.center not in word:
+                print("Word missing the central letter (1st letter)")
             elif word in self.other_words:
                 print(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
                 words_found.add(word)
