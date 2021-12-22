@@ -74,23 +74,28 @@ class Bee:
             print(f"{words_count - len(words_found)} words remaining")
           
 print_all = False
+search_bee = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "l", ["list"])
+    opts, args = getopt.getopt(sys.argv[1:], "ls:", ["list", "search"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
 for o, a in opts:
     if o == "-l":
         print_all = True
-
+    elif o == "-s":
+        search_bee = a
         
 english_words = load_words()
 bees = Bee.create_bees(english_words)
-bee = bees[random.randint(0, len(bees)-1)]
 if print_all:
     pydoc.pager('\n'.join(str(b) for b in bees))
+elif search_bee is not None:
+    bee = [b for b in bees if b.letters == set(search_bee)][0]
+    print(bee)
 else:
+    bee = bees[random.randint(0, len(bees)-1)]
     bee.guess()
 
 #fitting_words = list(filter(is_valid, english_words))
