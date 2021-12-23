@@ -18,12 +18,20 @@ WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
+class Word:
+    word: str
+    letters: set
+    
+    def __init__(self, word: str, letters: set):
+        self.word = word
+        self.letters = letters
+
 def load_words():
 #    urllib.request.urlretrieve("https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt", "words_alpha.txt")
     with open("./words.txt") as word_file:
         valid_words = word_file.read().split()
 
-    return [word for word in valid_words if len(word) >= 3]
+    return [Word(word, set(word)) for word in valid_words if len(word) >= 3]
 
 class Bee:
     letters: set
@@ -38,21 +46,21 @@ class Bee:
         self.other_words = other_words
         
     @staticmethod
-    def create_bee(word: str):
+    def create_bee(word: Word):
         res = set()
-        has_7_letters = len(word) >= UNIQUE_LETTERS_COUNT and len(''.join(set(word))) == UNIQUE_LETTERS_COUNT
+        has_7_letters = len(''.join(word.letters)) == UNIQUE_LETTERS_COUNT
         if has_7_letters:
             all_other_words = set()
             for w in english_words:
-                if w != word and set(w).issubset(set(word)):
+                if w.word != word.word and w.letters.issubset(word.letters):
                     all_other_words.add(w)
-            for center in sorted(set(word)):
+            for center in sorted(word.letters):
                 other_words = set()
                 for w in all_other_words:
-                    if center in w:
-                        other_words.add(w)
+                    if center in w.letters:
+                        other_words.add(w.word)
                 if 10 <= len(other_words) <= 20:
-                    res.add(Bee(set(word), center, word, other_words))
+                    res.add(Bee(word.letters, center, word.word, other_words))
         return res
                 
     @staticmethod
