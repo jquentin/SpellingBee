@@ -83,6 +83,7 @@ class Bee:
             if bee is not None:
                 bees.extend(list(bee))
             index += 1
+        print(f"Loading: {loading_bar} 100%")
         return bees
         
     def show_letters(self):
