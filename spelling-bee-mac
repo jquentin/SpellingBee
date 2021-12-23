@@ -1,2 +1,2 @@
-$(dirname $0)/combfinder.py
+python3 $(dirname $0)/combfinder.py
 exit $?
