@@ -105,7 +105,12 @@ for o, a in opts:
 english_words = load_words()
 bees = Bee.create_bees(english_words)
 if print_all:
-    pydoc.pager('\n'.join(str(b) for b in bees))
+    all_bees = ""
+    index = 0
+    for b in bees:
+        all_bees += f"{index} - {b}\n"
+        index += 1
+    pydoc.pager(all_bees)
 elif search_bee is not None:
     bee = [b for b in bees if b.letters == set(search_bee)][0]
     print(bee)
