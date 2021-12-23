@@ -115,8 +115,14 @@ elif search_bee is not None:
     bee = [b for b in bees if b.letters == set(search_bee)][0]
     print(bee)
 else:
-    random.seed((datetime.date.today() - datetime.datetime.utcfromtimestamp(0).date()).days)
-    bee = bees[random.randint(0, len(bees)-1)]
+    date = datetime.date.today()
+    print(f"Spelling bee for {date}")
+    seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
+    print(f"Seed: {seed}")
+    random.seed(seed)
+    bee_index = random.randint(0, len(bees)-1)
+    print(f"Bee number: {bee_index}")
+    bee = bees[bee_index]
     bee.guess()
 
 #fitting_words = list(filter(is_valid, english_words))
