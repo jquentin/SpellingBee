@@ -42,10 +42,14 @@ class Bee:
         res = set()
         has_7_letters = len(word) >= UNIQUE_LETTERS_COUNT and len(''.join(set(word))) == UNIQUE_LETTERS_COUNT
         if has_7_letters:
+            all_other_words = set()
+            for w in english_words:
+                if w != word and set(w).issubset(set(word)):
+                    all_other_words.add(w)
             for center in sorted(set(word)):
                 other_words = set()
-                for w in english_words:
-                    if w != word and set(w).issubset(set(word)) and center in w:
+                for w in all_other_words:
+                    if center in w:
                         other_words.add(w)
                 if 10 <= len(other_words) <= 20:
                     res.add(Bee(set(word), center, word, other_words))
