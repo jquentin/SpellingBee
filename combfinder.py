@@ -16,6 +16,8 @@ CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "
 INCORRECT_WORDS = ["Incorrect word", "Nope", "Not a word", "That's not a thing", "What's that?"]
 WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
 
+LOADING_BAR_LENGTH = 60
+
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
 class Word:
@@ -66,10 +68,21 @@ class Bee:
     @staticmethod
     def create_bees(words):
         bees = []
+        index = 0
         for word in words:
+            loading_rate = index / len(words)
+            loading_bar = "["
+            for i in range(0, LOADING_BAR_LENGTH):
+                if i < loading_rate * LOADING_BAR_LENGTH:
+                    loading_bar += "█"
+                else:
+                    loading_bar += " "
+            loading_bar += "]"
+            print(f"Loading: {loading_bar} {round(loading_rate * 100)}%", end = '\r')
             bee = Bee.create_bee(word)
             if bee is not None:
                 bees.extend(list(bee))
+            index += 1
         return bees
         
     def show_letters(self):
