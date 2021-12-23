@@ -52,7 +52,7 @@ class Bee:
         if has_7_letters:
             all_other_words = set()
             for w in english_words:
-                if w.word != word.word and w.letters.issubset(word.letters):
+                if w.letters.issubset(word.letters) and w.word != word.word:
                     all_other_words.add(w)
             for center in sorted(word.letters):
                 other_words = set()
