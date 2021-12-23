@@ -8,6 +8,8 @@ import sys
 import getopt
 import datetime
 
+start_time = datetime.datetime.now()
+
 UNIQUE_LETTERS_COUNT = 7
 
 CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "Wow!", "Perfect!"]
@@ -104,6 +106,11 @@ for o, a in opts:
         
 english_words = load_words()
 bees = Bee.create_bees(english_words)
+
+end_time = datetime.datetime.now()
+
+print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(english_words)} words")
+
 if print_all:
     all_bees = ""
     index = 0
