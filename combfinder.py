@@ -48,7 +48,7 @@ class Bee:
     @staticmethod
     def create_bee(word: Word):
         res = set()
-        has_7_letters = len(''.join(word.letters)) == UNIQUE_LETTERS_COUNT
+        has_7_letters = len(word.letters) == UNIQUE_LETTERS_COUNT
         if has_7_letters:
             all_other_words = set()
             for w in english_words:
