@@ -11,7 +11,8 @@ import datetime
 UNIQUE_LETTERS_COUNT = 7
 
 CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "Wow!", "Perfect!"]
-INCORRECT_WORDS = ["Incorrect", "Nope", "Not a word", "Try again"]
+INCORRECT_WORDS = ["Incorrect word", "Nope", "Not a word", "That's not a thing", "What's that?"]
+WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
@@ -80,8 +81,10 @@ class Bee:
             elif word == self.pangram:
                 print("PANGRAM!")
                 words_found.add(word)
-            else:
+            elif set(word).issubset(self.letters):
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
+            else:
+                print(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
             print(f"{words_count - len(words_found)} words remaining")
         print("You found everything! Congratulations Jessica!")
           
