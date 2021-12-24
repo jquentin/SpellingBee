@@ -7,6 +7,7 @@ import os
 import sys
 import getopt
 import datetime
+import json
 
 start_time = datetime.datetime.now()
 
@@ -93,6 +94,9 @@ class Bee:
     def __str__(self):
         return f"{self.show_letters()} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
         
+    def hashed_str(self):
+        return f"{self.show_letters()} -> {','.join(str(hash(w)) for w in self.other_words)}"
+        
     def guess(self):
         words_count = len(self.other_words)+1
         print(f"{self.show_letters()} -> {words_count} words to find")
@@ -117,16 +121,19 @@ class Bee:
         print("You found everything! Congratulations Jessica!")
           
 print_all = False
+write_file = False
 search_bee = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "ls:", ["list", "search"])
+    opts, args = getopt.getopt(sys.argv[1:], "lws:", ["list", "write", "search"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
 for o, a in opts:
     if o == "-l":
         print_all = True
+    if o == "-w":
+        write_file = True
     elif o == "-s":
         search_bee = a
         
@@ -137,7 +144,17 @@ end_time = datetime.datetime.now()
 
 print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(english_words)} words")
 
-if print_all:
+if write_file:
+    dict = {"bees": []}
+    for b in bees:
+        bee_dict = {"letters": b.show_letters(), "pangram": b.pangram, "other_words": []}
+        for w in b.other_words:
+            bee_dict["other_words"].append(hash(w))
+        dict["bees"].append(bee_dict)
+    with open("./bees.txt", "w") as word_file:
+        json.dump(dict, word_file, indent = 2)
+
+elif print_all:
     all_bees = ""
     index = 0
     for b in bees:
