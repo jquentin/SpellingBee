@@ -103,7 +103,7 @@ class Bee:
         
     def show_letters(self):
         other_letters = self.letters - set(self.center)
-        return f"{self.center}{''.join(other_letters)}"
+        return f"{self.center}{''.join(random.sample(other_letters,len(other_letters)))}"
     
     def __str__(self):
         return f"{self.show_letters()} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
@@ -142,6 +142,12 @@ class HashedBee(Bee):
         words_found = set()
         while len(words_found) < words_count:
             word = input()
+            if word == "":
+                continue
+            elif word == "s" or word == "r" or word == "i":
+                print(f"{self.show_letters()} -> {words_count - len(words_found)} words remaining")
+                print(f"Words found: {','.join(words_found)}")
+                continue
             hash_word = str(hash(word))
             if verbose:
                 print(f"hash: {hash_word}")
