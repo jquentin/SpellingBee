@@ -196,13 +196,14 @@ def generate_bees():
     return bees
 
 def read_hashed_bees():
+    print("Reading bees file")
     word_file = open("./bees.txt")
     json_data = json.load(word_file)
     bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data["bees"]]
     print(f"Read {len(bees)} hashed bees from file")
     return bees
-
-if write_file:
+    
+def write_bees_file():
     bees = generate_bees()
     dict = {"bees": []}
     for b in bees:
@@ -214,6 +215,8 @@ if write_file:
     with open("./bees.txt", "w") as word_file:
         json.dump(dict, word_file, indent = 1)
 
+if write_file:
+    write_bees_file()
 elif print_all:
     bees = generate_bees()
     all_bees = ""
@@ -227,6 +230,9 @@ elif search_bee is not None:
     bee = [b for b in bees if b.center == search_bee[0] and b.letters == set(search_bee)][0]
     print(bee)
 else:
+    if not os.path.exists("./bees.txt"):
+        print("First time playing -> generating bees file. This might take a couple minutes.")
+        write_bees_file()
     bees = read_hashed_bees()
     date = datetime.date.today()
     print(f"Spelling bee for {date}")
