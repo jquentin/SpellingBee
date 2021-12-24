@@ -31,7 +31,7 @@ def get_loading_bar(loading_rate, bar_length):
     return loading_bar
 
 def hash(s: str):
-    return hashlib.sha1(s.encode('utf-8')).hexdigest()
+    return hashlib.sha1(s.encode('utf-8')).hexdigest()[:6]
 
 class Word:
     word: str
@@ -143,7 +143,8 @@ class HashedBee(Bee):
         while len(words_found) < words_count:
             word = input()
             hash_word = str(hash(word))
-            print(f"hash: {hash(word)}")
+            if verbose:
+                print(f"hash: {hash_word}")
             if word in words_found:
                 print("Word already found")
             elif self.center not in word:
@@ -209,6 +210,7 @@ if write_file:
         for w in b.other_words:
             bee_dict["other_words"].append(hash(w))
         dict["bees"].append(bee_dict)
+    print("Writing bees file")
     with open("./bees.txt", "w") as word_file:
         json.dump(dict, word_file, indent = 1)
 
