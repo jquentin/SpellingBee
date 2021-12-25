@@ -10,6 +10,7 @@ import datetime
 import json
 import hashlib
 import unicodedata
+import math
 
 UNIQUE_LETTERS_COUNT = 7
 
@@ -66,7 +67,7 @@ def show_progress(block_num, block_size, total_size):
     loading_rate = block_num * block_size / total_size
     loading_bar = get_loading_bar(loading_rate, LOADING_BAR_LENGTH)
     if loading_rate < 1:
-        print(f"Downloading words: {loading_bar} {round(loading_rate * 100)}%", end='\r')
+        print(f"Downloading words: {loading_bar} {math.floor(loading_rate * 100)}%", end='\r')
     else:
         print(f"Downloading words: {loading_bar} 100%")
 
@@ -123,7 +124,7 @@ class Bee:
         for word in words:
             loading_rate = index / len(words)
             loading_bar = get_loading_bar(loading_rate, LOADING_BAR_LENGTH)
-            print(f"Generating bees: {loading_bar} {round(loading_rate * 100)}%", end = '\r')
+            print(f"Generating bees: {loading_bar} {math.floor(loading_rate * 100)}%", end = '\r')
             if word.letters not in used_letters:
                 bee = Bee.create_bee(word, words)
                 if bee is not None:
@@ -138,33 +139,7 @@ class Bee:
         return f"{self.center}{''.join(random.sample(other_letters,len(other_letters)))}"
     
     def __str__(self):
-        return f"{self.show_letters()} -> {len(self.other_words)+1}: {self.pangram},{','.join(self.other_words)}"
-        
-#    def hashed_str(self):
-#        return f"{self.show_letters()} -> {','.join(str(hash(w)) for w in self.other_words)}"
-        
-    def guess(self):
-        words_count = len(self.other_words)+1
-        print(f"{self.show_letters()} -> {words_count} words to find")
-        words_found = set()
-        while len(words_found) < words_count:
-            word = input()
-            if word in words_found:
-                print("Word already found")
-            elif self.center not in word:
-                print("Word missing the central letter (1st letter)")
-            elif word in self.other_words:
-                print(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
-                words_found.add(word)
-            elif word == self.pangram:
-                print("PANGRAM!")
-                words_found.add(word)
-            elif set(word).issubset(self.letters):
-                print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
-            else:
-                print(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
-            print(f"{words_count - len(words_found)} words remaining")
-        print("You found everything! Congratulations Jessica!")
+        return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
           
 class HashedBee(Bee):
     
@@ -250,6 +225,7 @@ def read_hashed_bees():
 def write_bees_file():
     bees = generate_bees()
     dict = {KEY_BEES: []}
+    print("Creating bees dictionary")
     for b in bees:
         bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
         for w in b.other_words:
