@@ -11,6 +11,7 @@ import json
 import hashlib
 import unicodedata
 import math
+import time
 
 UNIQUE_LETTERS_COUNT = 7
 
@@ -33,6 +34,9 @@ KEY_LETTERS = "letters"
 KEY_BEES = "bees"
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
+
+def cls():
+    os.system('cls' if os.name=='nt' else 'clear')
     
 def get_loading_bar(loading_rate, bar_length):
     loading_bar = "["
@@ -147,17 +151,22 @@ class HashedBee(Bee):
         words_count = len(self.other_words) + len(self.pangrams)
         words_found = set()
         pangrams_found = set()
+        letters_ordered = self.show_letters()
         while len(words_found) < words_count:
-            print("")
-            print(f"{self.show_letters()}")
+            cls()
+            print(f"{letters_ordered}")
             print(f"{len(words_found)}/{words_count} words found: {','.join(sorted(words_found))}")
             print(f"{len(pangrams_found)}/{len(self.pangrams)} pangrams found: {','.join(sorted(pangrams_found))}")
             word = input()
             hash_word = str(hash(word))
             if verbose:
                 print(f"hash: {hash_word}")
-                            
-            if len(word) < 3:
+            if word == "":
+                continue
+            elif word == "s" or word == "r":
+                letters_ordered = self.show_letters()
+                continue
+            elif len(word) < 3:
                 print("Word too short")
             elif word in words_found:
                 print("Word already found")
@@ -174,6 +183,7 @@ class HashedBee(Bee):
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
             else:
                 print(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
+            time.sleep(1)
         print("You found everything! Congratulations Jessica!")
     
     @staticmethod
@@ -268,6 +278,8 @@ else:
     bee_index = random.randint(0, len(bees)-1)
     print(f"Bee number: {bee_index}")
     bee = bees[bee_index]
+    print("Starting game")   
+    time.sleep(1)
     bee.guess()
 
 #fitting_words = list(filter(is_valid, english_words))
