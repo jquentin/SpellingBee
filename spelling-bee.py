@@ -136,7 +136,7 @@ class Bee:
         
     def show_letters(self):
         other_letters = self.letters - set(self.center)
-        return f"{self.center}{''.join(random.sample(other_letters,len(other_letters)))}"
+        return f"{self.center}{''.join(random.sample(list(other_letters),len(other_letters)))}"
     
     def __str__(self):
         return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
