@@ -186,13 +186,19 @@ write_file = False
 verbose = False
 search_bee = None
 language = DEFAULT_LANGUAGE
+diff_min = 10
+diff_max = 50
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lwvn:s:", ["list", "write", "verbose", "language", "search"])
+    opts, args = getopt.getopt(sys.argv[1:], "d:lwvn:s:", ["difficulty", "list", "write", "verbose", "language", "search"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
 for o, a in opts:
+    if o == "-d":
+        diff = int(a)
+        diff_min = diff - 5
+        diff_max = diff +5
     if o == "-l":
         print_all = True
     if o == "-w":
@@ -216,8 +222,8 @@ def read_hashed_bees():
     print("Reading bees file")
     word_file = open(bees_path())
     json_data = json.load(word_file)
-    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data[KEY_BEES] if 10 <= len(bee_dict[KEY_OTHER_WORDS]) <= 50]
-    print(f"Read {len(bees)} hashed bees from file")
+    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data[KEY_BEES] if diff_min <= len(bee_dict[KEY_OTHER_WORDS]) <= diff_max]
+    print(f"Read {len(bees)} hashed bees with {diff_min} to {diff_max} words")
     return bees
     
 def write_bees_file():
