@@ -171,7 +171,7 @@ class HashedBee(Bee):
                 continue
             elif word == "s" or word == "r" or word == "i":
                 print(f"{self.show_letters()} -> {words_count - len(words_found)} words remaining")
-                print(f"Words found: {','.join(words_found)}")
+                print(f"Words found: {','.join(sorted(words_found))}")
                 continue
             hash_word = str(hash(word))
             if verbose:
