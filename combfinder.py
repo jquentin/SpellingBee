@@ -9,12 +9,20 @@ import getopt
 import datetime
 import json
 import hashlib
+import unicodedata
 
 UNIQUE_LETTERS_COUNT = 7
 
 CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "Wow!", "Perfect!"]
 INCORRECT_WORDS = ["Incorrect word", "Nope", "Not a word", "That's not a thing", "What's that?"]
 WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
+
+DEFAULT_WORD_LISTS={
+    "fr": "https://raw.githubusercontent.com/hbenbel/French-Dictionary/master/dictionary/dictionary.txt",
+    "en": "http://www.mieliestronk.com/corncob_lowercase.txt"
+}
+
+DEFAULT_LANGUAGE = "en"
 
 LOADING_BAR_LENGTH = 60
 
@@ -32,6 +40,12 @@ def get_loading_bar(loading_rate, bar_length):
 
 def hash(s: str):
     return hashlib.sha1(s.encode('utf-8')).hexdigest()[:6]
+    
+def words_path():
+    return f"words_{language}.txt"
+        
+def bees_path():
+    return f"bees_{language}.txt"
 
 class Word:
     word: str
@@ -52,10 +66,18 @@ def show_progress(block_num, block_size, total_size):
         print(f"Downloading words: {loading_bar} 100%")
 
 def load_words():
-    urllib.request.urlretrieve("http://www.mieliestronk.com/corncob_lowercase.txt", "words.txt", show_progress)
-    with open("./words.txt") as word_file:
-        valid_words = word_file.read().split()
-    return [Word(word, set(word)) for word in valid_words if len(word) >= 3]
+    urllib.request.urlretrieve(DEFAULT_WORD_LISTS[language], words_path(), show_progress)
+    word_file = open(words_path())
+    content = word_file.read()
+    content = unicodedata.normalize('NFD', content).encode('ascii', 'ignore').decode("utf-8")
+    word_file = open(words_path(), "w")
+    word_file.write(content)
+    words = content.split()
+    res = []
+    for word in words:
+        if len(word) >= 3 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
+            res.append(Word(word, set(word)))
+    return res
 
 class Bee:
     letters: set
@@ -90,13 +112,16 @@ class Bee:
     def create_bees(words):
         bees = []
         index = 0
+        used_letters = set()
         for word in words:
             loading_rate = index / len(words)
             loading_bar = get_loading_bar(loading_rate, LOADING_BAR_LENGTH)
             print(f"Generating bees: {loading_bar} {round(loading_rate * 100)}%", end = '\r')
-            bee = Bee.create_bee(word, words)
-            if bee is not None:
-                bees.extend(list(bee))
+            if word.letters not in used_letters:
+                bee = Bee.create_bee(word, words)
+                if bee is not None:
+                    bees.extend(list(bee))
+                    used_letters.add(frozenset(word.letters))
             index += 1
         print(f"Generating bees: {loading_bar} 100%")
         return bees
@@ -177,9 +202,10 @@ print_all = False
 write_file = False
 verbose = False
 search_bee = None
+language = DEFAULT_LANGUAGE
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "lwvs:", ["list", "write", "verbose", "search"])
+    opts, args = getopt.getopt(sys.argv[1:], "lwvn:s:", ["list", "write", "verbose", "language", "search"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
@@ -190,22 +216,24 @@ for o, a in opts:
         write_file = True
     if o == "-v":
         verbose = True
+    elif o == "-n":
+        language = a
     elif o == "-s":
         search_bee = a
         
 def generate_bees():
     start_time = datetime.datetime.now()
-    english_words = load_words()
-    bees = Bee.create_bees(english_words)
+    words = load_words()
+    bees = Bee.create_bees(words)
     end_time = datetime.datetime.now()
-    print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(english_words)} words")
+    print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(words)} words")
     return bees
 
 def read_hashed_bees():
     print("Reading bees file")
-    word_file = open("./bees.txt")
+    word_file = open(bees_path())
     json_data = json.load(word_file)
-    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data["bees"]]
+    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data["bees"] if 10 <= len(bee_dict["other_words"]) <= 50]
     print(f"Read {len(bees)} hashed bees from file")
     return bees
     
@@ -218,7 +246,7 @@ def write_bees_file():
             bee_dict["other_words"].append(hash(w))
         dict["bees"].append(bee_dict)
     print("Writing bees file")
-    with open("./bees.txt", "w") as word_file:
+    with open(bees_path(), "w") as word_file:
         json.dump(dict, word_file, indent = 1)
 
 if write_file:
@@ -236,8 +264,8 @@ elif search_bee is not None:
     bee = [b for b in bees if b.center == search_bee[0] and b.letters == set(search_bee)][0]
     print(bee)
 else:
-    if not os.path.exists("./bees.txt"):
-        print("First time playing -> generating bees file. This might take a couple minutes.")
+    if not os.path.exists(bees_path()):
+        print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
         write_bees_file()
     bees = read_hashed_bees()
     date = datetime.date.today()
