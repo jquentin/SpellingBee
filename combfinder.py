@@ -24,7 +24,12 @@ DEFAULT_WORD_LISTS={
 
 DEFAULT_LANGUAGE = "en"
 
-LOADING_BAR_LENGTH = 60
+LOADING_BAR_LENGTH = 50
+
+KEY_PANGRAMS = "pangrams"
+KEY_OTHER_WORDS = "other_words"
+KEY_LETTERS = "letters"
+KEY_BEES = "bees"
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
     
@@ -82,30 +87,32 @@ def load_words():
 class Bee:
     letters: set
     center: str
-    pangram: str
+    pangrams: set
     other_words: set
     
-    def __init__(self, letters: set, center: str, pangram: str, other_words: set):
+    def __init__(self, letters: set, center: str, pangrams: set, other_words: set):
         self.letters = letters
         self.center = center
-        self.pangram = pangram
+        self.pangrams = pangrams
         self.other_words = other_words
         
     @staticmethod
     def create_bee(word: Word, words):
         res = set()
-        has_7_letters = len(word.letters) == UNIQUE_LETTERS_COUNT
-        if has_7_letters:
+        if len(word.letters) == UNIQUE_LETTERS_COUNT:
+            pangrams = set()
             all_other_words = set()
             for w in words:
-                if w.letters.issubset(word.letters) and w.word != word.word:
+                if w.letters == word.letters:
+                    pangrams.add(w.word)
+                elif w.letters.issubset(word.letters):
                     all_other_words.add(w)
             for center in sorted(word.letters):
                 other_words = set()
                 for w in all_other_words:
                     if center in w.letters:
                         other_words.add(w.word)
-                res.add(Bee(word.letters, center, word.word, other_words))
+                res.add(Bee(word.letters, center, pangrams, other_words))
         return res
                 
     @staticmethod
@@ -162,16 +169,18 @@ class Bee:
 class HashedBee(Bee):
     
     def guess(self):
-        words_count = len(self.other_words)+1
-        print(f"{self.show_letters()} -> {words_count} words to find")
+        words_count = len(self.other_words) + len(self.pangrams)
+        print(f"{self.show_letters()} -> {words_count} words to find, {len(self.pangrams)} pangrams")
         words_found = set()
+        pangrams_found = set()
         while len(words_found) < words_count:
             word = input()
             if word == "":
                 continue
             elif word == "s" or word == "r" or word == "i":
-                print(f"{self.show_letters()} -> {words_count - len(words_found)} words remaining")
-                print(f"Words found: {','.join(sorted(words_found))}")
+                print(f"{self.show_letters()} -> {words_count} words to find, {len(self.pangrams)} pangrams")
+                print(f"{len(words_found)} words found: {','.join(sorted(words_found))}")
+                print(f"{len(pangrams_found)} pangrams found: {','.join(sorted(pangrams_found))}")
                 continue
             hash_word = str(hash(word))
             if verbose:
@@ -183,9 +192,10 @@ class HashedBee(Bee):
             elif hash_word in self.other_words:
                 print(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
                 words_found.add(word)
-            elif hash_word == self.pangram:
+            elif hash_word in self.pangrams:
                 print("PANGRAM!")
                 words_found.add(word)
+                pangrams_found.add(word)
             elif set(word).issubset(self.letters):
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
             else:
@@ -195,7 +205,7 @@ class HashedBee(Bee):
     
     @staticmethod
     def create_from_dict(dict):
-        return HashedBee(set(dict["letters"]), dict["letters"][0], dict["pangram"], set(dict["other_words"]))
+        return HashedBee(set(dict[KEY_LETTERS]), dict[KEY_LETTERS][0], set(dict[KEY_PANGRAMS]), set(dict[KEY_OTHER_WORDS]))
         
     
 print_all = False
@@ -233,18 +243,20 @@ def read_hashed_bees():
     print("Reading bees file")
     word_file = open(bees_path())
     json_data = json.load(word_file)
-    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data["bees"] if 10 <= len(bee_dict["other_words"]) <= 50]
+    bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data[KEY_BEES] if 10 <= len(bee_dict[KEY_OTHER_WORDS]) <= 50]
     print(f"Read {len(bees)} hashed bees from file")
     return bees
     
 def write_bees_file():
     bees = generate_bees()
-    dict = {"bees": []}
+    dict = {KEY_BEES: []}
     for b in bees:
-        bee_dict = {"letters": b.show_letters(), "pangram": hash(b.pangram), "other_words": []}
+        bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
         for w in b.other_words:
-            bee_dict["other_words"].append(hash(w))
-        dict["bees"].append(bee_dict)
+            bee_dict[KEY_OTHER_WORDS].append(hash(w))
+        for w in b.pangrams:
+            bee_dict[KEY_PANGRAMS].append(hash(w))
+        dict[KEY_BEES].append(bee_dict)
     print("Writing bees file")
     with open(bees_path(), "w") as word_file:
         json.dump(dict, word_file, indent = 1)
