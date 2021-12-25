@@ -145,22 +145,21 @@ class HashedBee(Bee):
     
     def guess(self):
         words_count = len(self.other_words) + len(self.pangrams)
-        print(f"{self.show_letters()} -> {words_count} words to find, {len(self.pangrams)} pangrams")
         words_found = set()
         pangrams_found = set()
         while len(words_found) < words_count:
+            print("")
+            print(f"{self.show_letters()}")
+            print(f"{len(words_found)}/{words_count} words found: {','.join(sorted(words_found))}")
+            print(f"{len(pangrams_found)}/{len(self.pangrams)} pangrams found: {','.join(sorted(pangrams_found))}")
             word = input()
-            if word == "":
-                continue
-            elif word == "s" or word == "r" or word == "i":
-                print(f"{self.show_letters()} -> {words_count} words to find, {len(self.pangrams)} pangrams")
-                print(f"{len(words_found)} words found: {','.join(sorted(words_found))}")
-                print(f"{len(pangrams_found)} pangrams found: {','.join(sorted(pangrams_found))}")
-                continue
             hash_word = str(hash(word))
             if verbose:
                 print(f"hash: {hash_word}")
-            if word in words_found:
+                            
+            if len(word) < 3:
+                print("Word too short")
+            elif word in words_found:
                 print("Word already found")
             elif self.center not in word:
                 print("Word missing the central letter (1st letter)")
@@ -175,7 +174,6 @@ class HashedBee(Bee):
                 print(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
             else:
                 print(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
-            print(f"{words_count - len(words_found)} words remaining")
         print("You found everything! Congratulations Jessica!")
     
     @staticmethod
