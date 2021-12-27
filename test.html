@@ -1,0 +1,117 @@
+<html>
+
+    <head>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython.min.js">
+        </script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
+        </script>
+    </head>
+
+    <body onload="brython()">
+        
+        <style id="jsbin-css">
+        .hexagon {
+          position: relative;
+          width: 120px;
+          height: 100px;
+          background: #d8d8d8;
+        }
+
+        .hexagon:after,
+        .hexagon:before {
+          position: absolute;
+          content: "";
+          z-index: 1;
+          top: 0;
+          width: 0px;
+          background: #fff;
+          border-top: 50px transparent solid;
+          border-bottom: 50px transparent solid;
+        }
+
+        .hexagon:before {
+            left: 0;
+            border-right: 30px #d8d8d8 solid;
+        }
+        .hexagon:after {
+            right: 0;
+            border-left: 30px #d8d8d8 solid;
+        }
+        </style>
+
+        <script type="text/python">
+        from browser import document, alert
+        import urllib.request
+        #import pydoc
+        import random
+        import os
+        import sys
+        import getopt
+        import datetime
+        import json
+        import hashlib
+        import unicodedata
+        import math
+        import time
+        
+        
+        def add_letter(letter: str):
+            global word
+            word += letter
+            document["label"].text = word
+            
+
+        def button1clicked(event):
+            add_letter("1")
+        
+        def button2clicked(event):
+            add_letter("2")
+        
+        def button3clicked(event):
+            add_letter("3")
+        
+        def button4clicked(event):
+            add_letter("4")
+        
+        def button5clicked(event):
+            add_letter("5")
+        
+        def button6clicked(event):
+            add_letter("6")
+        
+        def buttonCclicked(event):
+            add_letter("C")
+            
+        word = ""
+
+        document["button1"].bind("click", button1clicked)
+        document["button2"].bind("click", button2clicked)
+        document["button3"].bind("click", button3clicked)
+        document["button4"].bind("click", button4clicked)
+        document["button5"].bind("click", button5clicked)
+        document["button6"].bind("click", button6clicked)
+        document["buttonC"].bind("click", buttonCclicked)
+        
+        </script>
+        
+<!--        <div class="hexagon"></div>-->
+<!--        <div class="hive"><svg class="hive-cell center" viewBox="0 0 120 103.92304845413263"><polygon class="cell-fill" points="0,0 30,0 90,0 120,0 90,0 30,0" stroke="white" stroke-width="7.5"></polygon><text class="cell-letter" x="50%" y="50%" dy="0.35em">m</text></svg></div>-->
+
+<button style="background-image: url(https://www.pngall.com/wp-content/uploads/2016/04/Hexagon-PNG-Picture.png)">C</button>
+
+        <button class="hexagon" id="buttonC" style=" left: 50%; top: 44%; background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Regular_hexagon.svg/2048px-Regular_hexagon.svg.png)">C</button>
+        <button class="hexagon" id="button1" style="position: absolute; left: 50%; top: 32%; width: 120px; height: 100px;">1</button>
+        <button class="hexagon" id="button2" style="position: absolute; left: 56%; top: 38%; width: 120px; height: 100px;">2</button>
+        <button class="hexagon" id="button3" style="position: absolute; left: 56%; top: 50%; width: 120px; height: 100px;">3</button>
+        <button class="hexagon" id="button4" style="position: absolute; left: 50%; top: 56%; width: 120px; height: 100px;">4</button>
+        <button class="hexagon" id="button5" style="position: absolute; left: 44%; top: 50%; width: 120px; height: 100px;">5</button>
+        <button class="hexagon" id="button6" style="position: absolute; left: 44%; top: 38%; width: 120px; height: 100px;">6</button>
+        <label id="label"></label>
+
+    </body>
+
+</html>
