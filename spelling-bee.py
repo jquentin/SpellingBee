@@ -11,6 +11,7 @@ import hashlib
 import unicodedata
 import math
 import time
+import locale
 
 UNIQUE_LETTERS_COUNT = 7
 
@@ -194,11 +195,17 @@ print_all = False
 write_file = False
 verbose = False
 search_bee = None
-language = DEFAULT_LANGUAGE
 diff_min = 10
 diff_max = 50
 date = datetime.date.today()
 url = None
+
+if locale.getlocale()[0] is None:
+    locale.setlocale(locale.LC_ALL, '')
+if locale.getlocale()[0] is not None:
+    language = locale.getlocale()[0][0:2]
+else:
+    language = DEFAULT_LANGUAGE
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url"])
