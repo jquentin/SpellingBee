@@ -21,10 +21,12 @@ For more advanced usage and options, run spelling-bee.py with Python3.
 
 ## Options
 
- - -n \<count>: Will choose a puzzle only among those with (\<count> - 5) to (\<count> + 5) words
+ - -g \<language>: Sets the language to \<language>. Uses ISO 639-1 codes. Currently available: en & fr
+ - -m \<count>: Sets the minimum number of words to \<count>
+ - -M \<count>: Sets the maximum number of words to \<count>
+ - -n \<count>: Sets the minimum to (\<count> - 5) and maximum to (\<count> + 5)
  - -l: Prints all puzzles and solutions, for debug purposes
  - -v: Verbose mode
- - -g \<language>: Sets the language to \<language>. Uses ISO 639-1 codes. Currently available: en & fr
  - -w: Only loads the word list and creates the list of puzzles
  - -s \<letters>: Searches for the solutions to the puzzle with letters \<letters> (mandatory letter first)
  - -d \<date>: Plays the puzzle for the date \<date>
