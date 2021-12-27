@@ -225,6 +225,35 @@ for o, a in opts:
     elif o == "-u":
         url = a
         
+def menu():
+    print("Selection:")
+    print(" - Play Game (p)")
+    print(f" - Change language (g): current -> {language}")
+    print(" - Play yesterday's game (y)")
+    sel = input().lower()
+    if sel == "p":
+        game()
+    elif sel == "g":
+        change_language()
+    elif sel == "y":
+        date -= timedelta(days=1)
+        game()
+        
+def game():
+    print(f"Spelling bee for {date}")
+    seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
+    print(f"Seed: {seed}")
+    random.seed(seed)
+    bee_index = random.randint(0, len(bees)-1)
+    print(f"Bee number: {bee_index}")
+    bee = bees[bee_index]
+    print("Starting game")
+    time.sleep(1)
+    bee.guess()
+    
+def change_language():
+    language = input(f"Select language (available: {','.join(DEFAULT_WORD_LISTS.keys())})")
+        
 def generate_bees():
     start_time = datetime.datetime.now()
     words = load_words(DEFAULT_WORD_LISTS[language])
@@ -275,16 +304,7 @@ else:
         print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
         write_bees_file()
     bees = read_hashed_bees()
-    print(f"Spelling bee for {date}")
-    seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
-    print(f"Seed: {seed}")
-    random.seed(seed)
-    bee_index = random.randint(0, len(bees)-1)
-    print(f"Bee number: {bee_index}")
-    bee = bees[bee_index]
-    print("Starting game")   
-    time.sleep(1)
-    bee.guess()
+    menu()
 
 #fitting_words = list(filter(is_valid, english_words))
 #print(f"{len(bees)} words with {UNIQUE_LETTERS_COUNT} unique letters:")
