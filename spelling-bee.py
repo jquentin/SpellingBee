@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import urllib.request
-import pydoc
 import random
 import os
 import sys
@@ -198,14 +197,15 @@ search_bee = None
 language = DEFAULT_LANGUAGE
 diff_min = 10
 diff_max = 50
+date = datetime.date.today()
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "d:lwvn:s:", ["difficulty", "list", "write", "verbose", "language", "search"])
+    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:", ["words-count", "list", "write", "verbose", "language", "search", "date"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
 for o, a in opts:
-    if o == "-d":
+    if o == "-n":
         diff = int(a)
         diff_min = diff - 5
         diff_max = diff +5
@@ -215,10 +215,12 @@ for o, a in opts:
         write_file = True
     if o == "-v":
         verbose = True
-    elif o == "-n":
+    elif o == "-g":
         language = a
     elif o == "-s":
         search_bee = a
+    elif o == "-d":
+        date = datetime.date.fromisoformat(a)
         
 def generate_bees():
     start_time = datetime.datetime.now()
@@ -270,7 +272,6 @@ else:
         print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
         write_bees_file()
     bees = read_hashed_bees()
-    date = datetime.date.today()
     print(f"Spelling bee for {date}")
     seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
     print(f"Seed: {seed}")
