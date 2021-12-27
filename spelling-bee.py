@@ -208,7 +208,7 @@ else:
     language = DEFAULT_LANGUAGE
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url"])
+    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "min", "max"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
@@ -231,6 +231,10 @@ for o, a in opts:
         date = datetime.date.fromisoformat(a)
     elif o == "-u":
         url = a
+    elif o == "-m":
+        url = diff_min = a
+    elif o == "-M":
+        url = diff_max = a
         
 def generate_bees():
     start_time = datetime.datetime.now()
