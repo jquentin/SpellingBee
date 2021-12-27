@@ -21,11 +21,11 @@ For more advanced usage and options, run spelling-bee.py with Python3.
 
 ## Options
 
- - -n <count>: Word count: Will choose a puzzle only among those with <count> - 5 to <count> + 5 words
+ - -n \<count>: Will choose a puzzle only among those with <count> - 5 to <count> + 5 words
  - -l: Prints all puzzles and solutions, for debug purposes
  - -v: Verbose mode
- - -g <language>: Sets the language to <language>. Uses ISO 639-1 codes. Currently available: en & fr
+ - -g \<language>: Sets the language to <language>. Uses ISO 639-1 codes. Currently available: en & fr
  - -w: Only loads the word list and creates the list of puzzles
- - -s <letters>: Searches for the solutions to the puzzle with letters <letters> (mandatory letter first)
- - -d <date>: Plays the puzzle for the date <date>
- - -u <url>: Overrides the URL of the word list to <url>. Use with -w to recreate the puzzles with the new word list. Default word lists are provided for [English](http://www.mieliestronk.com/corncob_lowercase.txt) and [French](https://raw.githubusercontent.com/hbenbel/French-Dictionary/master/dictionary/dictionary.txt). Note that it will automatically remove accents and exclude words with non-alpha characters (like dash or apostrophe).
+ - -s \<letters>: Searches for the solutions to the puzzle with letters <letters> (mandatory letter first)
+ - -d \<date>: Plays the puzzle for the date <date>
+ - -u \<url>: Overrides the URL of the word list to <url>. Use with -w to recreate the puzzles with the new word list. Default word lists are provided for [English](http://www.mieliestronk.com/corncob_lowercase.txt) and [French](https://raw.githubusercontent.com/hbenbel/French-Dictionary/master/dictionary/dictionary.txt). Note that it will automatically remove accents and exclude words with non-alpha characters (like dash or apostrophe).
