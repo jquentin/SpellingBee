@@ -74,8 +74,8 @@ def show_progress(block_num, block_size, total_size):
     else:
         print(f"Downloading words: {loading_bar} 100%")
 
-def load_words():
-    urllib.request.urlretrieve(DEFAULT_WORD_LISTS[language], words_path(), show_progress)
+def load_words(url: str):
+    urllib.request.urlretrieve(url, words_path(), show_progress)
     word_file = open(words_path())
     content = word_file.read()
     content = unicodedata.normalize('NFD', content).encode('ascii', 'ignore').decode("utf-8")
@@ -198,9 +198,10 @@ language = DEFAULT_LANGUAGE
 diff_min = 10
 diff_max = 50
 date = datetime.date.today()
+url = None
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:", ["words-count", "list", "write", "verbose", "language", "search", "date"])
+    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
@@ -221,10 +222,12 @@ for o, a in opts:
         search_bee = a
     elif o == "-d":
         date = datetime.date.fromisoformat(a)
+    elif o == "-u":
+        url = a
         
 def generate_bees():
     start_time = datetime.datetime.now()
-    words = load_words()
+    words = load_words(DEFAULT_WORD_LISTS[language])
     bees = Bee.create_bees(words)
     end_time = datetime.datetime.now()
     print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(words)} words")
