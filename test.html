@@ -9,6 +9,7 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
+        <link rel="stylesheet" type="text/css" href="https://www.nytimes.com/games-assets/v2/spelling-bee.393697e6c4fff9d085aae347f3c1a55c9042840d.css">
     </head>
 
     <body onload="brython()">
@@ -44,7 +45,7 @@
         </style>
 
         <script type="text/python">
-        from browser import document, alert
+        from browser import document, alert, html
         import urllib.request
         #import pydoc
         import random
@@ -135,7 +136,7 @@
             words = content.split()
             res = []
             for word in words:
-                if len(word) >= 3 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
+                if len(word) >= 4 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
                     res.append(Word(word, set(word)))
             return res
 
@@ -192,7 +193,9 @@
             def show_letters(self):
                 print(f"show_letters({self.letters})")
                 other_letters = self.letters - set(self.center)
-                return f"{self.center.upper()}{''.join(random.sample(list(l.upper() for l in other_letters),len(other_letters)))}"
+                res = f"{self.center.upper()}{''.join(random.sample(list(l.upper() for l in other_letters),len(other_letters)))}"
+                print(res)
+                return res
             
             def __str__(self):
                 return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
@@ -210,6 +213,7 @@
                 print("You found everything! Congratulations Jessica!")
                 
             def try_guess(self, word):
+                result = False
                 word = word.lower()
                 print(f"try_guess({word})")
                 cls()
@@ -225,7 +229,7 @@
                 #elif word == "s" or word == "r":
                 #    letters_ordered = self.show_letters()
                 #    continue
-                elif len(word) < 3:
+                elif len(word) < 4:
                     feedback("Word too short")
                 elif word in words_found:
                     feedback("Word already found")
@@ -234,15 +238,18 @@
                 elif hash_word in self.other_words:
                     feedback(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
                     words_found.add(word)
+                    result = True
                 elif hash_word in self.pangrams:
                     feedback("PANGRAM!")
                     words_found.add(word)
                     pangrams_found.add(word)
+                    result = True
                 elif set(word).issubset(self.letters):
                     feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
                 else:
                     feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
                 clear_word()
+                return result
             
             @staticmethod
             def create_from_dict(dict):
@@ -260,7 +267,7 @@
 
         if locale.getlocale()[0] is None:
             locale.setlocale(locale.LC_ALL, '')
-        if locale.getlocale()[0] is not None:
+        if locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
             language = locale.getlocale()[0][0:2]
         else:
             language = DEFAULT_LANGUAGE
@@ -363,8 +370,9 @@
         letters_ordered = bee.show_letters()
         
         def add_letter(letter: str):
+            print(f"add_letter({letter.strip()})")
             global word
-            word += letter
+            word += letter.strip()
             update_word()
             
         def button1clicked(event):
@@ -388,23 +396,54 @@
         def buttonCclicked(event):
             add_letter(document["buttonC"].text)
             
+        def update_word_list():
+            document.select(".sb-wordlist-summary")[0].text = f"You have found {len(words_found)}/{len(bee.other_words)} words"
+            document.select(".sb-wordlist-items-pag")[0].clear()
+            for word in sorted(words_found):
+                document.select(".sb-wordlist-items-pag")[0] <= html.LI(word)
+            
         def button_enter_clicked(event):
-            bee.try_guess(word)
+            correct = bee.try_guess(word)
+            if correct:
+                update_word_list()
+            clear_word()
+            
+        def button_delete_clicked(event):
+            global word
+            word = word[:-1]
+            update_word()
+            
+        def button_shuffle_clicked(event):
+            print("shuffle")
+            global letters_ordered
+            letters_ordered = bee.show_letters()
+            update_letters()
             
         def clear_word():
             print("clear_word")
             global word
             word = ""
-            print(f"word = {word}")
             update_word()
             
         def update_word():
             print(f"update label to {word}")
-            document["label"].text = word
+            document.select(".sb-hive-input-content")[0].clear()
+            document.select(".sb-hive-input-content")[0].class_name = "sb-hive-input-content" if word == "" else "sb-hive-input-content non-empty"
+            for letter in word:
+                document.select(".sb-hive-input-content")[0] <= html.SPAN(letter.strip(), Class="sb-input-bright" if letter.lower() == bee.center else "")
+            
+        def update_letters():
+            document["button1"].select("text")[0].text = letters_ordered[1]
+            document["button2"].select("text")[0].text = letters_ordered[2]
+            document["button3"].select("text")[0].text = letters_ordered[3]
+            document["button4"].select("text")[0].text = letters_ordered[4]
+            document["button5"].select("text")[0].text = letters_ordered[5]
+            document["button6"].select("text")[0].text = letters_ordered[6]
+            document["buttonC"].select("text")[0].text = letters_ordered[0]
             
         def feedback(s: str):
             print(s)
-            document["feedback"].text = s
+            #document["feedback"].text = s
 
         document["button1"].bind("click", button1clicked)
         document["button2"].bind("click", button2clicked)
@@ -414,33 +453,111 @@
         document["button6"].bind("click", button6clicked)
         document["buttonC"].bind("click", buttonCclicked)
         document["button_enter"].bind("click", button_enter_clicked)
+        document["button_delete"].bind("click", button_delete_clicked)
+        document["button_shuffle"].bind("click", button_shuffle_clicked)
         
-        document["button1"].text = letters_ordered[1]
-        document["button2"].text = letters_ordered[2]
-        document["button3"].text = letters_ordered[3]
-        document["button4"].text = letters_ordered[4]
-        document["button5"].text = letters_ordered[5]
-        document["button6"].text = letters_ordered[6]
-        document["buttonC"].text = letters_ordered[0]
+        update_letters()
+        update_word()
+        update_word_list()
         
         </script>
         
-<!--        <div class="hexagon"></div>-->
-<!--        <div class="hive"><svg class="hive-cell center" viewBox="0 0 120 103.92304845413263"><polygon class="cell-fill" points="0,0 30,0 90,0 120,0 90,0 30,0" stroke="white" stroke-width="7.5"></polygon><text class="cell-letter" x="50%" y="50%" dy="0.35em">m</text></svg></div>-->
-
-
-
-        <button class="hexagon" id="buttonC" style=" left: 50%; top: 44%; background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Regular_hexagon.svg/2048px-Regular_hexagon.svg.png)">C</button>
-        <button class="hexagon" id="button1" style="position: absolute; left: 50%; top: 32%; width: 120px; height: 100px;">1</button>
-        <button class="hexagon" id="button2" style="position: absolute; left: 56%; top: 38%; width: 120px; height: 100px;">2</button>
-        <button class="hexagon" id="button3" style="position: absolute; left: 56%; top: 50%; width: 120px; height: 100px;">3</button>
-        <button class="hexagon" id="button4" style="position: absolute; left: 50%; top: 56%; width: 120px; height: 100px;">4</button>
-        <button class="hexagon" id="button5" style="position: absolute; left: 44%; top: 50%; width: 120px; height: 100px;">5</button>
-        <button class="hexagon" id="button6" style="position: absolute; left: 44%; top: 38%; width: 120px; height: 100px;">6</button>
-        <label id="label" style="position: absolute; left: 50%; top: 25%"></label>
-        <button id="button_enter" style="position: absolute; left: 44%; top: 65%; width: 120px; height: 100px;">Enter</button>
-            
-        <label id="feedback" style="position: absolute; left: 50%; top: 80%"></label>
+        <div class="pz-game-field" id="pz-game-root">
+           <div class="sb-content-box">
+              <div class="sb-status-box">
+                 <div class="sb-progress-box">
+                    <span role="presentation">
+                       <div class="sb-progress" title="Click to see today’s ranks">
+                          <h4 class="sb-progress-rank">Good Start</h4>
+                          <div class="sb-progress-bar">
+                             <div class="sb-progress-line">
+                                <div class="sb-progress-dots"><span class="sb-progress-dot completed"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span></div>
+                             </div>
+                             <div class="sb-progress-marker" style="left: 12.5%;"><span class="sb-progress-value">4</span></div>
+                          </div>
+                       </div>
+                    </span>
+                 </div>
+                 <div class="sb-wordlist-box">
+                    <div class="sb-wordlist-heading">
+                       <div class="sb-wordlist-heading-wrap sb-touch-button">
+                          <div class="sb-wordlist-summary">You have found 4 words</div>
+                          <div class="sb-recent-words-wrap">
+                             <ul class="sb-recent-words sb-has-words">
+                                <li><span class="sb-anagram">lim<span class="sb-anagram-key">o</span></span></li>
+                                <li><span class="sb-anagram">l<span class="sb-anagram-key">o</span>am</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span><span class="sb-anagram-key">o</span>m</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span>ll</span></li>
+                             </ul>
+                          </div>
+                          <div class="sb-toggle-expand"><span class="sb-toggle-icon"></span></div>
+                       </div>
+                    </div>
+                    <div class="sb-wordlist-drawer">
+                       <div class="sb-wordlist-window">
+                          <div class="sb-wordlist-pag">
+                             <div class="sb-wordlist-scroll-anchor" style="left: 0%;"></div>
+                             <ul class="sb-wordlist-items-pag">
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span>ll</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span><span class="sb-anagram-key">o</span>m</span></li>
+                                <li><span class="sb-anagram">lim<span class="sb-anagram-key">o</span></span></li>
+                                <li><span class="sb-anagram">l<span class="sb-anagram-key">o</span>am</span></li>
+                             </ul>
+                          </div>
+                          <div class="sb-kebob"></div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+              <div class="sb-controls-box">
+                 <div class="sb-controls">
+                    <div class="sb-message-box"></div>
+                    <div class="sb-hive-input">
+                       <span class="sb-hive-input-content" style="font-size: 1em;"></span>
+                       <div class="sb-hive-hidden-input"><span class="sb-hive-input-content" style="font-size: 1em;"></span></div>
+                    </div>
+                    <div class="sb-hive">
+                       <div class="hive">
+                          <svg id="buttonC" type="button" class="hive-cell center" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">o</text>
+                          </svg>
+                          <svg id="button1" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">x</text>
+                          </svg>
+                          <svg id="button2" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">i</text>
+                          </svg>
+                          <svg id="button3" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">l</text>
+                          </svg>
+                          <svg id="button4" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">a</text>
+                          </svg>
+                          <svg id="button5" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">b</text>
+                          </svg>
+                          <svg id="button6" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">m</text>
+                          </svg>
+                       </div>
+                    </div>
+                    <div class="hive-actions">
+                       <div id="button_enter" type="button" class="hive-action hive-action__submit sb-touch-button">Enter</div>
+                       <div id="button_delete" type="button" class="hive-action hive-action__delete sb-touch-button">Delete</div>
+                       <div id="button_shuffle" type="button" class="hive-action hive-action__shuffle sb-touch-button"></div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+        
         
     </body>
 
