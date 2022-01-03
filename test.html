@@ -301,6 +301,8 @@
             elif o == "-M":
                 url = diff_max = a
                 
+        print(f"language: {language}")
+                
         def generate_bees():
             start_time = datetime.datetime.now()
             words = load_words(DEFAULT_WORD_LISTS[language])
