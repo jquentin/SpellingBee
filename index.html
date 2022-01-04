@@ -335,6 +335,27 @@
             with open(bees_path(), "w") as word_file:
                 json.dump(dict, word_file, indent = 1)
 
+                
+                
+        button1 = document["button1"]
+        button2 = document["button2"]
+        button3 = document["button3"]
+        button4 = document["button4"]
+        button5 = document["button5"]
+        button6 = document["button6"]
+        buttonC = document["buttonC"]
+        button1_text = button1.select("text")[0]
+        button2_text = button2.select("text")[0]
+        button3_text = button3.select("text")[0]
+        button4_text = button4.select("text")[0]
+        button5_text = button5.select("text")[0]
+        button6_text = button6.select("text")[0]
+        buttonC_text = buttonC.select("text")[0]
+        sb_hive_input_content = document.select(".sb-hive-input-content")[0]
+        sb_wordlist_summary = document.select(".sb-wordlist-summary")[0]
+        sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
+        
+        
         if write_file:
             write_bees_file()
         elif print_all:
@@ -378,31 +399,39 @@
             update_word()
             
         def button1clicked(event):
-            add_letter(document["button1"].text)
+            global button1_text
+            add_letter(button1_text.text)
         
         def button2clicked(event):
-            add_letter(document["button2"].text)
+            global button2_text
+            add_letter(button2_text.text)
         
         def button3clicked(event):
-            add_letter(document["button3"].text)
+            global button3_text
+            add_letter(button3_text.text)
         
         def button4clicked(event):
-            add_letter(document["button4"].text)
+            global button4_text
+            add_letter(button4_text.text)
         
         def button5clicked(event):
-            add_letter(document["button5"].text)
+            global button5_text
+            add_letter(button5_text.text)
         
         def button6clicked(event):
-            add_letter(document["button6"].text)
+            global button6_text
+            add_letter(button6_text.text)
         
         def buttonCclicked(event):
-            add_letter(document["buttonC"].text)
+            global buttonC_text
+            add_letter(buttonC_text.text)
             
         def update_word_list():
-            document.select(".sb-wordlist-summary")[0].text = f"You have found {len(words_found)}/{len(bee.other_words)} words"
-            document.select(".sb-wordlist-items-pag")[0].clear()
+            global sb_wordlist_summary, sb_wordlist_items_pag
+            sb_wordlist_summary.text = f"You have found {len(words_found)}/{len(bee.other_words)} words"
+            sb_wordlist_items_pag.clear()
             for word in sorted(words_found):
-                document.select(".sb-wordlist-items-pag")[0] <= html.LI(word)
+                sb_wordlist_items_pag <= html.LI(word)
             
         def button_enter_clicked(event):
             correct = bee.try_guess(word)
@@ -428,32 +457,34 @@
             update_word()
             
         def update_word():
+            global sb_hive_input_content
             print(f"update label to {word}")
-            document.select(".sb-hive-input-content")[0].clear()
-            document.select(".sb-hive-input-content")[0].class_name = "sb-hive-input-content" if word == "" else "sb-hive-input-content non-empty"
+            sb_hive_input_content.clear()
+            sb_hive_input_content.class_name = "sb-hive-input-content" if word == "" else "sb-hive-input-content non-empty"
             for letter in word:
-                document.select(".sb-hive-input-content")[0] <= html.SPAN(letter.strip(), Class="sb-input-bright" if letter.lower() == bee.center else "")
+                sb_hive_input_content <= html.SPAN(letter.strip(), Class="sb-input-bright" if letter.lower() == bee.center else "")
             
         def update_letters():
-            document["button1"].select("text")[0].text = letters_ordered[1]
-            document["button2"].select("text")[0].text = letters_ordered[2]
-            document["button3"].select("text")[0].text = letters_ordered[3]
-            document["button4"].select("text")[0].text = letters_ordered[4]
-            document["button5"].select("text")[0].text = letters_ordered[5]
-            document["button6"].select("text")[0].text = letters_ordered[6]
-            document["buttonC"].select("text")[0].text = letters_ordered[0]
+            global button1_text, button2_text, button3_text, button4_text, button5_text, button6_text, buttonC_text
+            button1_text.text = letters_ordered[1]
+            button2_text.text = letters_ordered[2]
+            button3_text.text = letters_ordered[3]
+            button4_text.text = letters_ordered[4]
+            button5_text.text = letters_ordered[5]
+            button6_text.text = letters_ordered[6]
+            buttonC_text.text = letters_ordered[0]
             
         def feedback(s: str):
             print(s)
             #document["feedback"].text = s
 
-        document["button1"].bind("click", button1clicked)
-        document["button2"].bind("click", button2clicked)
-        document["button3"].bind("click", button3clicked)
-        document["button4"].bind("click", button4clicked)
-        document["button5"].bind("click", button5clicked)
-        document["button6"].bind("click", button6clicked)
-        document["buttonC"].bind("click", buttonCclicked)
+        button1.bind("click", button1clicked)
+        button2.bind("click", button2clicked)
+        button3.bind("click", button3clicked)
+        button4.bind("click", button4clicked)
+        button5.bind("click", button5clicked)
+        button6.bind("click", button6clicked)
+        buttonC.bind("click", buttonCclicked)
         document["button_enter"].bind("click", button_enter_clicked)
         document["button_delete"].bind("click", button_delete_clicked)
         document["button_shuffle"].bind("click", button_shuffle_clicked)
