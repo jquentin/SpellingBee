@@ -16,6 +16,7 @@
         
         <script type="text/python">
         from browser import document, alert, html
+        from browser.local_storage import storage
         import urllib.request
         #import pydoc
         import random
@@ -219,6 +220,7 @@
                 else:
                     feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
                 clear_word()
+                storage["words_found"] = ",".join(list(words_found))
                 return result
             
             @staticmethod
@@ -458,6 +460,14 @@
         document["button_enter"].bind("click", button_enter_clicked)
         document["button_delete"].bind("click", button_delete_clicked)
         document["button_shuffle"].bind("click", button_shuffle_clicked)
+        
+        if "date" in storage and str(date) == storage["date"]:
+            print(f"words_found: {storage['words_found']}")
+            if storage["words_found"] != "":
+                words_found = set(storage["words_found"].split(","))
+        else:
+            storage["words_found"] = ""
+            storage["date"] = str(date)
         
         update_letters()
         update_word()
