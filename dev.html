@@ -275,7 +275,7 @@
                 else:
                     feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
                 clear_word()
-                storage["words_found"] = ",".join(list(words_found))
+                storage[f"words_found_{language}"] = ",".join(list(words_found))
                 return result
             
             @staticmethod
@@ -531,12 +531,12 @@
         document.bind('change', button_language_changed)
         
         
-        if "date" in storage and str(date) == storage["date"]:
-            print(f"words_found: {storage['words_found']}")
-            if storage["words_found"] != "":
-                words_found = set(storage["words_found"].split(","))
+        if "date" in storage and str(date) == storage["date"] and f"words_found_{language}" in storage:
+            if storage[f"words_found_{language}"] != "":
+                words_found = set(storage[f"words_found_{language}"].split(","))
         else:
-            storage["words_found"] = ""
+            for lang in DEFAULT_WORD_LISTS.keys():
+                storage[f"words_found_{lang}"] = ""
             storage["date"] = str(date)
         
         update_letters()
