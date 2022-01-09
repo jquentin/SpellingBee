@@ -10,6 +10,61 @@
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
         <link rel="stylesheet" type="text/css" href="https://www.nytimes.com/games-assets/v2/spelling-bee.393697e6c4fff9d085aae347f3c1a55c9042840d.css">
+            
+            
+        <style>
+            .custom-radios{
+                position:absolute;
+                top:10px;
+                right: 10px;
+            }
+
+            .custom-radios div {
+              justify-content: center;
+              align-items: center;
+              display: inline-block;
+            }
+            .custom-radios input[type=radio] {
+              display: none;
+            }
+            .custom-radios input[type=radio] + label {
+              color: #333;
+              font-family: Arial, sans-serif;
+              font-size: 14px;
+            }
+            .custom-radios input[type=radio] + label span {
+              display: inline-block;
+              width: 20px;
+              height: 20px;
+              margin: -1px 4px 0 0;
+              vertical-align: middle;
+              cursor: pointer;
+              border-radius: 50%;
+              border: 2px solid #777777;
+              box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
+              background-repeat: no-repeat;
+              background-position: center;
+              text-align: center;
+              line-height: 22px;
+            }
+            .custom-radios input[type=radio] + label span img {
+              opacity: 0;
+              transition: all 0.3s ease;
+            }
+            .custom-radios input[type=radio]#lang-en + label span {
+              background-image: url("https://cdn-icons-png.flaticon.com/128/197/197374.png");
+              background-size: 20px 20px;
+            }
+            .custom-radios input[type=radio]#lang-fr + label span {
+              background-image: url("https://cdn-icons-png.flaticon.com/512/197/197560.png");
+              background-size: 20px 20px;
+            }
+            .custom-radios input[type=radio]:checked + label span {
+              opacity: 1;
+              border: 2px solid #FFFF00;
+            }
+        </style>
+            
     </head>
 
     <body onload="brython()">
@@ -220,7 +275,7 @@
                 else:
                     feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
                 clear_word()
-                storage["words_found"] = ",".join(list(words_found))
+                storage[f"words_found_{language}"] = ",".join(list(words_found))
                 return result
             
             @staticmethod
@@ -239,10 +294,16 @@
 
         if locale.getlocale()[0] is None:
             locale.setlocale(locale.LC_ALL, '')
-        if locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
+        if "language" in storage.keys() and storage["language"] in DEFAULT_WORD_LISTS.keys():
+            language = storage["language"]
+        elif locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
             language = locale.getlocale()[0][0:2]
         else:
             language = DEFAULT_LANGUAGE
+            
+        for lang_flag in document.get(name="lang"):
+            lang_flag.checked = lang_flag.value == language
+            
 
         try:
             opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "min", "max"])
@@ -422,6 +483,12 @@
             letters_ordered = bee.show_letters()
             update_letters()
             
+            
+        def button_language_changed(event):
+            language = event.target.value
+            storage["language"] = event.target.value
+            document.location.reload()
+            
         def clear_word():
             print("clear_word")
             global word
@@ -461,12 +528,15 @@
         document["button_delete"].bind("click", button_delete_clicked)
         document["button_shuffle"].bind("click", button_shuffle_clicked)
         
-        if "date" in storage and str(date) == storage["date"]:
-            print(f"words_found: {storage['words_found']}")
-            if storage["words_found"] != "":
-                words_found = set(storage["words_found"].split(","))
+        document.bind('change', button_language_changed)
+        
+        
+        if "date" in storage and str(date) == storage["date"] and f"words_found_{language}" in storage:
+            if storage[f"words_found_{language}"] != "":
+                words_found = set(storage[f"words_found_{language}"].split(","))
         else:
-            storage["words_found"] = ""
+            for lang in DEFAULT_WORD_LISTS.keys():
+                storage[f"words_found_{lang}"] = ""
             storage["date"] = str(date)
         
         update_letters()
@@ -571,6 +641,28 @@
            </div>
         </div>
         
+        
+        
+        
+        <div class="custom-radios">
+          <div>
+            <input type="radio" id="lang-en" name="lang" value="en" checked="">
+            <label for="lang-en">
+              <span>
+                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon" width=100%>
+              </span>
+            </label>
+          </div>
+          
+          <div>
+            <input type="radio" id="lang-fr" name="lang" value="fr">
+            <label for="lang-fr">
+              <span>
+                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon">
+              </span>
+            </label>
+          </div>
+        </div>
         
     </body>
 
