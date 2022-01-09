@@ -1,0 +1,669 @@
+<html>
+
+    <head>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython.min.js">
+        </script>
+        <script
+            type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
+        </script>
+        <link rel="stylesheet" type="text/css" href="https://www.nytimes.com/games-assets/v2/spelling-bee.393697e6c4fff9d085aae347f3c1a55c9042840d.css">
+            
+            
+        <style>
+            .custom-radios{
+                position:absolute;
+                top:10px;
+                right: 10px;
+            }
+
+            .custom-radios div {
+              justify-content: center;
+              align-items: center;
+              display: inline-block;
+            }
+            .custom-radios input[type=radio] {
+              display: none;
+            }
+            .custom-radios input[type=radio] + label {
+              color: #333;
+              font-family: Arial, sans-serif;
+              font-size: 14px;
+            }
+            .custom-radios input[type=radio] + label span {
+              display: inline-block;
+              width: 20px;
+              height: 20px;
+              margin: -1px 4px 0 0;
+              vertical-align: middle;
+              cursor: pointer;
+              border-radius: 50%;
+              border: 2px solid #777777;
+              box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.33);
+              background-repeat: no-repeat;
+              background-position: center;
+              text-align: center;
+              line-height: 22px;
+            }
+            .custom-radios input[type=radio] + label span img {
+              opacity: 0;
+              transition: all 0.3s ease;
+            }
+            .custom-radios input[type=radio]#lang-en + label span {
+              background-image: url("https://cdn-icons-png.flaticon.com/128/197/197374.png");
+              background-size: 20px 20px;
+            }
+            .custom-radios input[type=radio]#lang-fr + label span {
+              background-image: url("https://cdn-icons-png.flaticon.com/512/197/197560.png");
+              background-size: 20px 20px;
+            }
+            .custom-radios input[type=radio]:checked + label span {
+              opacity: 1;
+              border: 2px solid #FFFF00;
+            }
+        </style>
+            
+    </head>
+
+    <body onload="brython()">
+        
+        <script type="text/python">
+        from browser import document, alert, html
+        from browser.local_storage import storage
+        import urllib.request
+        #import pydoc
+        import random
+        import os
+        import sys
+        import getopt
+        import datetime
+        import json
+        import hashlib
+        import unicodedata
+        import math
+        import time
+        import locale
+        
+        UNIQUE_LETTERS_COUNT = 7
+
+        CONGRATS_WORDS = ["Yes!", "Well done!", "Amazing!", "Fantastic!", "Fabulous!", "Wow!", "Perfect!"]
+        INCORRECT_WORDS = ["Incorrect word", "Nope", "Not a word", "That's not a thing", "What's that?"]
+        WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
+
+        DEFAULT_WORD_LISTS={
+            "fr": "https://raw.githubusercontent.com/hbenbel/French-Dictionary/master/dictionary/dictionary.txt",
+            "en": "http://www.mieliestronk.com/corncob_lowercase.txt"
+        }
+
+        DEFAULT_LANGUAGE = "en"
+
+        LOADING_BAR_LENGTH = 50
+
+        KEY_PANGRAMS = "pangrams"
+        KEY_OTHER_WORDS = "other_words"
+        KEY_LETTERS = "letters"
+        KEY_BEES = "bees"
+        
+        words_found = set()
+        pangrams_found = set()
+        letters_ordered = ""
+        
+        os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
+
+        def cls():
+            print("cls")
+            
+        def get_loading_bar(loading_rate, bar_length):
+            loading_bar = "["
+            for i in range(0, bar_length):
+                if i < loading_rate * bar_length:
+                    loading_bar += "█"
+                else:
+                    loading_bar += " "
+            loading_bar += "]"
+            return loading_bar
+
+        def hash(s: str):
+            return hashlib.sha1(s.encode('utf-8')).hexdigest()[:6]
+            
+        def words_path():
+            return f"words_{language}.txt"
+                
+        def bees_path():
+            return f"bees_{language}.txt"
+
+        class Word:
+            word: str
+            letters: set
+            
+            def __init__(self, word: str, letters: set):
+                self.word = word
+                self.letters = letters
+                
+
+        def show_progress(block_num, block_size, total_size):
+                    
+            loading_rate = block_num * block_size / total_size
+            loading_bar = get_loading_bar(loading_rate, LOADING_BAR_LENGTH)
+            if loading_rate < 1:
+                print(f"Downloading words: {loading_bar} {math.floor(loading_rate * 100)}%", end='\r')
+            else:
+                print(f"Downloading words: {loading_bar} 100%")
+
+        def load_words(url: str):
+            urllib.request.urlretrieve(url, words_path(), show_progress)
+            word_file = open(words_path())
+            content = word_file.read()
+            content = unicodedata.normalize('NFD', content).encode('ascii', 'ignore').decode("utf-8")
+            word_file = open(words_path(), "w")
+            word_file.write(content)
+            words = content.split()
+            res = []
+            for word in words:
+                if len(word) >= 4 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
+                    res.append(Word(word, set(word)))
+            return res
+
+        class Bee:
+            letters: set
+            center: str
+            pangrams: set
+            other_words: set
+            
+            def __init__(self, letters: set, center: str, pangrams: set, other_words: set):
+                self.letters = letters
+                self.center = center
+                self.pangrams = pangrams
+                self.other_words = other_words
+                
+            @staticmethod
+            def create_bee(word: Word, words):
+                print(f"create_bee({word})")
+                res = set()
+                if len(word.letters) == UNIQUE_LETTERS_COUNT:
+                    pangrams = set()
+                    all_other_words = set()
+                    for w in words:
+                        if w.letters == word.letters:
+                            pangrams.add(w.word)
+                        elif w.letters.issubset(word.letters):
+                            all_other_words.add(w)
+                    for center in sorted(word.letters):
+                        other_words = set()
+                        for w in all_other_words:
+                            if center in w.letters:
+                                other_words.add(w.word)
+                        res.add(Bee(word.letters, center, pangrams, other_words))
+                return res
+                        
+            @staticmethod
+            def create_bees(words):
+                bees = []
+                index = 0
+                used_letters = set()
+                for word in words:
+                    loading_rate = index / len(words)
+                    loading_bar = get_loading_bar(loading_rate, LOADING_BAR_LENGTH)
+                    print(f"Generating bees: {loading_bar} {math.floor(loading_rate * 100)}%", end = '\r')
+                    if word.letters not in used_letters:
+                        bee = Bee.create_bee(word, words)
+                        if bee is not None:
+                            bees.extend(list(bee))
+                            used_letters.add(frozenset(word.letters))
+                    index += 1
+                print(f"Generating bees: {loading_bar} 100%")
+                return bees
+                
+            def show_letters(self):
+                print(f"show_letters({self.letters})")
+                other_letters = self.letters - set(self.center)
+                res = f"{self.center.upper()}{''.join(random.sample(list(l.upper() for l in other_letters),len(other_letters)))}"
+                print(res)
+                return res
+            
+            def __str__(self):
+                return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
+                  
+        class HashedBee(Bee):
+            
+            def guess(self):
+                words_count = len(self.other_words) + len(self.pangrams)
+                words_found = set()
+                pangrams_found = set()
+                letters_ordered = self.show_letters()
+                #while len(words_found) < words_count:
+                    #try_guess(self)
+                    
+                print("You found everything! Congratulations Jessica!")
+                
+            def try_guess(self, word):
+                result = False
+                word = word.lower()
+                print(f"try_guess({word})")
+                cls()
+                print(f"{letters_ordered}")
+                #print(f"{len(words_found)}/{words_count} words found: {','.join(sorted(words_found))}")
+                #print(f"{len(pangrams_found)}/{len(self.pangrams)} pangrams found: {','.join(sorted(pangrams_found))}")
+                #word = input()
+                hash_word = str(hash(word))
+                if verbose:
+                    print(f"hash: {hash_word}")
+                if word == "":
+                    return
+                #elif word == "s" or word == "r":
+                #    letters_ordered = self.show_letters()
+                #    continue
+                elif len(word) < 4:
+                    feedback("Word too short")
+                elif word in words_found:
+                    feedback("Word already found")
+                elif self.center not in word:
+                    feedback(f"Word missing the central letter ({self.center})")
+                elif hash_word in self.other_words:
+                    feedback(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
+                    words_found.add(word)
+                    result = True
+                elif hash_word in self.pangrams:
+                    feedback("PANGRAM!")
+                    words_found.add(word)
+                    pangrams_found.add(word)
+                    result = True
+                elif set(word).issubset(self.letters):
+                    feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
+                else:
+                    feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
+                clear_word()
+                storage["words_found"] = ",".join(list(words_found))
+                return result
+            
+            @staticmethod
+            def create_from_dict(dict):
+                return HashedBee(set(dict[KEY_LETTERS]), dict[KEY_LETTERS][0], set(dict[KEY_PANGRAMS]), set(dict[KEY_OTHER_WORDS]))
+                
+            
+        print_all = False
+        write_file = False
+        verbose = False
+        search_bee = None
+        diff_min = 10
+        diff_max = 50
+        date = datetime.date.today()
+        url = None
+
+        if locale.getlocale()[0] is None:
+            locale.setlocale(locale.LC_ALL, '')
+        if "language" in storage.keys() and storage["language"] in DEFAULT_WORD_LISTS.keys():
+            language = storage["language"]
+        elif locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
+            language = locale.getlocale()[0][0:2]
+        else:
+            language = DEFAULT_LANGUAGE
+            
+        for lang_flag in document.get(name="lang"):
+            lang_flag.checked = lang_flag.value == language
+            
+
+        try:
+            opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "min", "max"])
+        except getopt.GetoptError as err:
+            print("error options")
+            sys.exit(2)
+        for o, a in opts:
+            if o == "-n":
+                diff = int(a)
+                diff_min = diff - 5
+                diff_max = diff +5
+            if o == "-l":
+                print_all = True
+            if o == "-w":
+                write_file = True
+            if o == "-v":
+                verbose = True
+            elif o == "-g":
+                language = a
+            elif o == "-s":
+                search_bee = a
+            elif o == "-d":
+                date = datetime.date.fromisoformat(a)
+            elif o == "-u":
+                url = a
+            elif o == "-m":
+                url = diff_min = a
+            elif o == "-M":
+                url = diff_max = a
+                
+        print(f"language: {language}")
+                
+        def generate_bees():
+            start_time = datetime.datetime.now()
+            words = load_words(DEFAULT_WORD_LISTS[language])
+            bees = Bee.create_bees(words)
+            end_time = datetime.datetime.now()
+            print(f"Generated {len(bees)} bees in {(end_time - start_time).seconds}s from {len(words)} words")
+            return bees
+
+        def read_hashed_bees():
+            path = bees_path()
+            print(f"Reading bees file: {path}")
+            word_file = open(path)
+            json_data = json.load(word_file)
+            bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data[KEY_BEES] if diff_min <= len(bee_dict[KEY_OTHER_WORDS]) <= diff_max]
+            print(f"Read {len(bees)} hashed bees with {diff_min} to {diff_max} words")
+            return bees
+            
+        def write_bees_file():
+            bees = generate_bees()
+            dict = {KEY_BEES: []}
+            print("Creating bees dictionary")
+            for b in bees:
+                bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
+                for w in b.other_words:
+                    bee_dict[KEY_OTHER_WORDS].append(hash(w))
+                for w in b.pangrams:
+                    bee_dict[KEY_PANGRAMS].append(hash(w))
+                dict[KEY_BEES].append(bee_dict)
+            print("Writing bees file")
+            with open(bees_path(), "w") as word_file:
+                json.dump(dict, word_file, indent = 1)
+
+                
+                
+        button1 = document["button1"]
+        button2 = document["button2"]
+        button3 = document["button3"]
+        button4 = document["button4"]
+        button5 = document["button5"]
+        button6 = document["button6"]
+        buttonC = document["buttonC"]
+        button1_text = button1.select("text")[0]
+        button2_text = button2.select("text")[0]
+        button3_text = button3.select("text")[0]
+        button4_text = button4.select("text")[0]
+        button5_text = button5.select("text")[0]
+        button6_text = button6.select("text")[0]
+        buttonC_text = buttonC.select("text")[0]
+        sb_hive_input_content = document.select(".sb-hive-input-content")[0]
+        sb_wordlist_summary = document.select(".sb-wordlist-summary")[0]
+        sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
+        
+        
+        if write_file:
+            write_bees_file()
+        elif print_all:
+            bees = generate_bees()
+            all_bees = ""
+            index = 0
+            for b in bees:
+                all_bees += f"{index} - {b.hashed_str()}\n"
+                index += 1
+            pydoc.pager(all_bees)
+        elif search_bee is not None:
+            bees = generate_bees()
+            bee = [b for b in bees if b.center == search_bee[0] and b.letters == set(search_bee)][0]
+            print(bee)
+        else:
+            if not os.path.exists(bees_path()):
+                print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
+                write_bees_file()
+            bees = read_hashed_bees()
+            print(f"Spelling bee for {date}")
+            seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
+            print(f"Seed: {seed}")
+            random.seed(seed)
+            bee_index = random.randint(0, len(bees)-1)
+            print(f"Bee number: {bee_index}")
+            bee = bees[bee_index]
+            print("Starting game")
+            
+            bee.guess()
+        
+        
+        
+        
+        word = ""
+        letters_ordered = bee.show_letters()
+        
+        def add_letter(letter: str):
+            print(f"add_letter({letter.strip()})")
+            global word
+            word += letter.strip()
+            update_word()
+            
+        def button1clicked(event):
+            global button1_text
+            add_letter(button1_text.text)
+        
+        def button2clicked(event):
+            global button2_text
+            add_letter(button2_text.text)
+        
+        def button3clicked(event):
+            global button3_text
+            add_letter(button3_text.text)
+        
+        def button4clicked(event):
+            global button4_text
+            add_letter(button4_text.text)
+        
+        def button5clicked(event):
+            global button5_text
+            add_letter(button5_text.text)
+        
+        def button6clicked(event):
+            global button6_text
+            add_letter(button6_text.text)
+        
+        def buttonCclicked(event):
+            global buttonC_text
+            add_letter(buttonC_text.text)
+            
+        def update_word_list():
+            global sb_wordlist_summary, sb_wordlist_items_pag
+            sb_wordlist_summary.text = f"You have found {len(words_found)}/{len(bee.other_words)} words"
+            sb_wordlist_items_pag.clear()
+            for word in sorted(words_found):
+                sb_wordlist_items_pag <= html.LI(word)
+            
+        def button_enter_clicked(event):
+            correct = bee.try_guess(word)
+            if correct:
+                update_word_list()
+            clear_word()
+            
+        def button_delete_clicked(event):
+            global word
+            word = word[:-1]
+            update_word()
+            
+        def button_shuffle_clicked(event):
+            print("shuffle")
+            global letters_ordered
+            letters_ordered = bee.show_letters()
+            update_letters()
+            
+            
+        def button_language_changed(event):
+            language = event.target.value
+            storage["language"] = event.target.value
+            document.location.reload()
+            
+        def clear_word():
+            print("clear_word")
+            global word
+            word = ""
+            update_word()
+            
+        def update_word():
+            global sb_hive_input_content
+            print(f"update label to {word}")
+            sb_hive_input_content.clear()
+            sb_hive_input_content.class_name = "sb-hive-input-content" if word == "" else "sb-hive-input-content non-empty"
+            for letter in word:
+                sb_hive_input_content <= html.SPAN(letter.strip(), Class="sb-input-bright" if letter.lower() == bee.center else "")
+            
+        def update_letters():
+            global button1_text, button2_text, button3_text, button4_text, button5_text, button6_text, buttonC_text
+            button1_text.text = letters_ordered[1]
+            button2_text.text = letters_ordered[2]
+            button3_text.text = letters_ordered[3]
+            button4_text.text = letters_ordered[4]
+            button5_text.text = letters_ordered[5]
+            button6_text.text = letters_ordered[6]
+            buttonC_text.text = letters_ordered[0]
+            
+        def feedback(s: str):
+            print(s)
+            #document["feedback"].text = s
+
+        button1.bind("click", button1clicked)
+        button2.bind("click", button2clicked)
+        button3.bind("click", button3clicked)
+        button4.bind("click", button4clicked)
+        button5.bind("click", button5clicked)
+        button6.bind("click", button6clicked)
+        buttonC.bind("click", buttonCclicked)
+        document["button_enter"].bind("click", button_enter_clicked)
+        document["button_delete"].bind("click", button_delete_clicked)
+        document["button_shuffle"].bind("click", button_shuffle_clicked)
+        
+        document.bind('change', button_language_changed)
+        
+        
+        if "date" in storage and str(date) == storage["date"]:
+            print(f"words_found: {storage['words_found']}")
+            if storage["words_found"] != "":
+                words_found = set(storage["words_found"].split(","))
+        else:
+            storage["words_found"] = ""
+            storage["date"] = str(date)
+        
+        update_letters()
+        update_word()
+        update_word_list()
+        
+        </script>
+        
+        <div class="pz-game-field" id="pz-game-root">
+           <div class="sb-content-box">
+              <div class="sb-status-box">
+                 <div class="sb-progress-box">
+                    <span role="presentation">
+                       <div class="sb-progress" title="Click to see today’s ranks">
+                          <h4 class="sb-progress-rank">Good Start</h4>
+                          <div class="sb-progress-bar">
+                             <div class="sb-progress-line">
+                                <div class="sb-progress-dots"><span class="sb-progress-dot completed"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span></div>
+                             </div>
+                             <div class="sb-progress-marker" style="left: 12.5%;"><span class="sb-progress-value">4</span></div>
+                          </div>
+                       </div>
+                    </span>
+                 </div>
+                 <div class="sb-wordlist-box">
+                    <div class="sb-wordlist-heading">
+                       <div class="sb-wordlist-heading-wrap sb-touch-button">
+                          <div class="sb-wordlist-summary">You have found 4 words</div>
+                          <div class="sb-recent-words-wrap">
+                             <ul class="sb-recent-words sb-has-words">
+                                <li><span class="sb-anagram">lim<span class="sb-anagram-key">o</span></span></li>
+                                <li><span class="sb-anagram">l<span class="sb-anagram-key">o</span>am</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span><span class="sb-anagram-key">o</span>m</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span>ll</span></li>
+                             </ul>
+                          </div>
+                          <div class="sb-toggle-expand"><span class="sb-toggle-icon"></span></div>
+                       </div>
+                    </div>
+                    <div class="sb-wordlist-drawer">
+                       <div class="sb-wordlist-window">
+                          <div class="sb-wordlist-pag">
+                             <div class="sb-wordlist-scroll-anchor" style="left: 0%;"></div>
+                             <ul class="sb-wordlist-items-pag">
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span>ll</span></li>
+                                <li><span class="sb-anagram">b<span class="sb-anagram-key">o</span><span class="sb-anagram-key">o</span>m</span></li>
+                                <li><span class="sb-anagram">lim<span class="sb-anagram-key">o</span></span></li>
+                                <li><span class="sb-anagram">l<span class="sb-anagram-key">o</span>am</span></li>
+                             </ul>
+                          </div>
+                          <div class="sb-kebob"></div>
+                       </div>
+                    </div>
+                 </div>
+              </div>
+              <div class="sb-controls-box">
+                 <div class="sb-controls">
+                    <div class="sb-message-box"></div>
+                    <div class="sb-hive-input">
+                       <span class="sb-hive-input-content" style="font-size: 1em;"></span>
+                       <div class="sb-hive-hidden-input"><span class="sb-hive-input-content" style="font-size: 1em;"></span></div>
+                    </div>
+                    <div class="sb-hive">
+                       <div class="hive">
+                          <svg id="buttonC" type="button" class="hive-cell center" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">o</text>
+                          </svg>
+                          <svg id="button1" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">x</text>
+                          </svg>
+                          <svg id="button2" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">i</text>
+                          </svg>
+                          <svg id="button3" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">l</text>
+                          </svg>
+                          <svg id="button4" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">a</text>
+                          </svg>
+                          <svg id="button5" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">b</text>
+                          </svg>
+                          <svg id="button6" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                             <text class="cell-letter" x="50%" y="50%" dy="0.35em">m</text>
+                          </svg>
+                       </div>
+                    </div>
+                    <div class="hive-actions">
+                       <div id="button_enter" type="button" class="hive-action hive-action__submit sb-touch-button" style="touch-action: manipulation;">Enter</div>
+                       <div id="button_delete" type="button" class="hive-action hive-action__delete sb-touch-button" style="touch-action: manipulation;">Delete</div>
+                       <div id="button_shuffle" type="button" class="hive-action hive-action__shuffle sb-touch-button" style="touch-action: manipulation;"></div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+        
+        
+        
+        
+        <div class="custom-radios">
+          <div>
+            <input type="radio" id="lang-en" name="lang" value="en" checked="">
+            <label for="lang-en">
+              <span>
+                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon" width=100%>
+              </span>
+            </label>
+          </div>
+          
+          <div>
+            <input type="radio" id="lang-fr" name="lang" value="fr">
+            <label for="lang-fr">
+              <span>
+                <img src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/242518/check-icn.svg" alt="Checked Icon">
+              </span>
+            </label>
+          </div>
+        </div>
+        
+    </body>
+
+</html>
