@@ -10,7 +10,7 @@
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
         <link rel="stylesheet" type="text/css" href="spelling-bee.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="foundation.css">
         <style>
             .custom-radios{
@@ -491,6 +491,7 @@
         sb_wordlist_summary = document.select(".sb-wordlist-summary")[0]
         sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
         sb_recent_words = document.select(".sb-recent-words")[0]
+        sb_content_box = document.select(".sb-content-box")[0]
         
         if write_file:
             write_bees_file()
@@ -594,6 +595,12 @@
             storage["language"] = event.target.value
             document.location.reload()
             
+        def button_expand_wordlist_clicked(event):
+            if "sb-expanded" in sb_content_box.class_name:
+                sb_content_box.class_name = "sb-content-box"
+            else:
+                sb_content_box.class_name = "sb-content-box sb-expanded"
+            
         def clear_word():
             print("clear_word")
             global word
@@ -632,6 +639,7 @@
         document["button_enter"].bind("click", button_enter_clicked)
         document["button_delete"].bind("click", button_delete_clicked)
         document["button_shuffle"].bind("click", button_shuffle_clicked)
+        document.select(".sb-toggle-expand")[0].bind("click", button_expand_wordlist_clicked)
         
         document.bind('change', button_language_changed)
         
@@ -672,6 +680,7 @@
                           <div class="sb-wordlist-summary">Loading...</div>
                           <div class="sb-recent-words-wrap">
                              <ul class="sb-recent-words">
+                                 <li>Loading...</li>
                              </ul>
                           </div>
                           <div class="sb-toggle-expand"><span class="sb-toggle-icon"></span></div>
@@ -682,7 +691,6 @@
                           <div class="sb-wordlist-pag">
                              <div class="sb-wordlist-scroll-anchor" style="left: 0%;"></div>
                              <ul class="sb-wordlist-items-pag">
-                                 <li>Loading...</li>
                              </ul>
                           </div>
                           <div class="sb-kebob"></div>
