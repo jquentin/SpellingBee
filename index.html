@@ -9,9 +9,9 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="https://www.nytimes.com/games-assets/v2/spelling-bee.393697e6c4fff9d085aae347f3c1a55c9042840d.css">
-            
-            
+        <link rel="stylesheet" type="text/css" href="spelling-bee.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="foundation.css">
         <style>
             .custom-radios{
                 position:absolute;
@@ -63,6 +63,109 @@
               opacity: 1;
               border: 2px solid #FFFF00;
             }
+        
+        
+            html,
+            body,
+            div,
+            span,
+            applet,
+            object,
+            iframe,
+            h1,
+            h2,
+            h3,
+            h4,
+            h5,
+            h6,
+            p,
+            blockquote,
+            pre,
+            a,
+            abbr,
+            acronym,
+            address,
+            big,
+            cite,
+            code,
+            del,
+            dfn,
+            em,
+            img,
+            ins,
+            kbd,
+            q,
+            s,
+            samp,
+            small,
+            strike,
+            strong,
+            sub,
+            sup,
+            tt,
+            var,
+            b,
+            u,
+            i,
+            center,
+            dl,
+            dt,
+            dd,
+            ol,
+            ul,
+            li,
+            fieldset,
+            form,
+            label,
+            legend,
+            table,
+            caption,
+            tbody,
+            tfoot,
+            thead,
+            tr,
+            th,
+            td,
+            article,
+            aside,
+            canvas,
+            details,
+            embed,
+            figure,
+            figcaption,
+            footer,
+            header,
+            hgroup,
+            menu,
+            nav,
+            output,
+            ruby,
+            section,
+            summary,
+            time,
+            mark,
+            audio,
+            video {
+                margin: 0;
+                padding: 0;
+                border: 0;
+                font-size: 100%;
+                font: inherit;
+                vertical-align: baseline
+            }
+        
+            .sb-controls-box {
+                max-height: 500px;
+            }
+        
+            .pz-game-field {
+                padding-top: 20px;
+            }
+        
+            .hive-action {
+                height: 20px;
+            }
+        
         </style>
             
     </head>
@@ -387,7 +490,7 @@
         sb_hive_input_content = document.select(".sb-hive-input-content")[0]
         sb_wordlist_summary = document.select(".sb-wordlist-summary")[0]
         sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
-        
+        sb_recent_words = document.select(".sb-recent-words")[0]
         
         if write_file:
             write_bees_file()
@@ -460,11 +563,13 @@
             add_letter(buttonC_text.text)
             
         def update_word_list():
-            global sb_wordlist_summary, sb_wordlist_items_pag
+            global sb_wordlist_summary, sb_wordlist_items_pag, sb_recent_words
             sb_wordlist_summary.text = f"You have found {len(words_found)}/{len(bee.other_words)} words"
             sb_wordlist_items_pag.clear()
+            sb_recent_words.clear()
             for word in sorted(words_found):
                 sb_wordlist_items_pag <= html.LI(word)
+                sb_recent_words <= html.LI(word)
             
         def button_enter_clicked(event):
             correct = bee.try_guess(word)
