@@ -359,24 +359,24 @@
                 #    letters_ordered = self.show_letters()
                 #    continue
                 elif len(word) < 4:
-                    feedback("Word too short")
+                    feedback("Word too short", True, False)
                 elif word in words_found:
-                    feedback("Word already found")
+                    feedback("Word already found", True, False)
                 elif self.center not in word:
-                    feedback(f"Word missing the central letter ({self.center})")
+                    feedback(f"Word missing the central letter ({self.center})", True, False)
                 elif hash_word in self.other_words:
-                    feedback(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)])
+                    feedback(CONGRATS_WORDS[random.randint(0, len(CONGRATS_WORDS)-1)], False, False)
                     words_found.add(word)
                     result = True
                 elif hash_word in self.pangrams:
-                    feedback("PANGRAM!")
+                    feedback("PANGRAM!", False, True)
                     words_found.add(word)
                     pangrams_found.add(word)
                     result = True
                 elif set(word).issubset(self.letters):
-                    feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)])
+                    feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)], True, False)
                 else:
-                    feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)])
+                    feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)], True, False)
                 clear_word()
                 storage[f"words_found_{language}"] = ",".join(list(words_found))
                 return result
@@ -492,6 +492,7 @@
         sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
         sb_recent_words = document.select(".sb-recent-words")[0]
         sb_content_box = document.select(".sb-content-box")[0]
+        sb_message_box = document.select(".sb-message-box")[0]
         
         if write_file:
             write_bees_file()
@@ -600,7 +601,7 @@
                 sb_content_box.class_name = "sb-content-box"
             else:
                 sb_content_box.class_name = "sb-content-box sb-expanded"
-            
+                
         def clear_word():
             print("clear_word")
             global word
@@ -625,9 +626,17 @@
             button6_text.text = letters_ordered[6]
             buttonC_text.text = letters_ordered[0]
             
-        def feedback(s: str):
-            print(s)
-            #document["feedback"].text = s
+        def feedback(msg, isError, isPangram):
+            class_name = "sb-message-box"
+            if isPangram:
+                class_name += " pangram-message"
+            elif isError:
+                class_name += " error-message"
+            else:
+                class_name += " success-message"
+            sb_message_box.class_name = class_name
+            sb_message_box.clear()
+            sb_message_box <= html.SPAN(msg, Class="sb-message")
 
         button1.bind("click", button1clicked)
         button2.bind("click", button2clicked)
