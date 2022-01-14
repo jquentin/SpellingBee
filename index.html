@@ -12,6 +12,7 @@
         <link rel="stylesheet" type="text/css" href="spelling-bee.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="foundation.css">
+        <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
         <style>
             .custom-radios{
                 position:absolute;
@@ -64,6 +65,13 @@
               border: 2px solid #FFFF00;
             }
         
+            .w3-yellow      {color:#000!important;background-color:#f7da21!important}
+            .w3-light-grey  {color:#000!important;background-color:#e6e6e6!important}
+            
+            #progress-bar { height:100%; }
+            #progress-bar-container { position:relative; height:24px; }
+            #progress-text-container { position:absolute; width:100%; height:100%; }
+            #progress-text { position:relative; display:flex; height:100%; align-items:center; justify-content:center; }
         
             html,
             body,
@@ -497,6 +505,8 @@
         sb_recent_words = document.select(".sb-recent-words")[0]
         sb_content_box = document.select(".sb-content-box")[0]
         sb_message_box = document.select(".sb-message-box")[0]
+        progress_bar = document["progress-bar"]
+        progress_text = document["progress-text"]
         
         if write_file:
             write_bees_file()
@@ -573,6 +583,8 @@
             sb_wordlist_summary.text = f"You have found {len(words_found)}/{len(bee.all_words())} words"
             sb_wordlist_items_pag.clear()
             sb_recent_words.clear()
+            progress_text.text = f"{len(words_found)}/{len(bee.all_words())} words found"
+            progress_bar.style = {"width": f"{len(words_found)/len(bee.all_words()) * 100}%"}
             for word in sorted(words_found):
                 sb_wordlist_items_pag <= html.LI(word)
                 sb_recent_words <= html.LI(word)
@@ -676,15 +688,12 @@
               <div class="sb-status-box">
                  <div class="sb-progress-box">
                     <span role="presentation">
-                       <div class="sb-progress" title="Click to see today’s ranks">
-                          <h4 class="sb-progress-rank">Good Start</h4>
-                          <div class="sb-progress-bar">
-                             <div class="sb-progress-line">
-                                <div class="sb-progress-dots"><span class="sb-progress-dot completed"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span><span class="sb-progress-dot"></span></div>
-                             </div>
-                             <div class="sb-progress-marker" style="left: 12.5%;"><span class="sb-progress-value">4</span></div>
-                          </div>
-                       </div>
+                        <div class="w3-light-grey w3-round-large" id="progress-bar-container">
+                            <div id="progress-text-container">
+                                <div id="progress-text"></div>
+                            </div>
+                            <div id="progress-bar" class="w3-container w3-yellow w3-round-large" style="width:0%"></div>
+                        </div>
                     </span>
                  </div>
                  <div class="sb-wordlist-box">
