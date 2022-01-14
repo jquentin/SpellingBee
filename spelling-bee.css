@@ -495,10 +495,6 @@
 	overflow: hidden
 }
 
-.sb-recent-words-wrap {
-	top: -45px
-}
-
 .sb-expanded .sb-recent-words-wrap {
 	top: 0;
 	opacity: 0

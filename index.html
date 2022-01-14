@@ -9,7 +9,7 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="spelling-bee.css">
+        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.3">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="foundation.css">
         <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
@@ -72,6 +72,8 @@
             #progress-bar-container { position:relative; height:24px; }
             #progress-text-container { position:absolute; width:100%; height:100%; }
             #progress-text { position:relative; display:flex; height:100%; align-items:center; justify-content:center; }
+        
+            .sb-wordlist-drawer { position:relative; top:-45px; width:90% }
         
             html,
             body,
@@ -500,7 +502,6 @@
         button6_text = button6.select("text")[0]
         buttonC_text = buttonC.select("text")[0]
         sb_hive_input_content = document.select(".sb-hive-input-content")[0]
-        sb_wordlist_summary = document.select(".sb-wordlist-summary")[0]
         sb_wordlist_items_pag = document.select(".sb-wordlist-items-pag")[0]
         sb_recent_words = document.select(".sb-recent-words")[0]
         sb_content_box = document.select(".sb-content-box")[0]
@@ -579,8 +580,7 @@
             add_letter(buttonC_text.text)
             
         def update_word_list():
-            global sb_wordlist_summary, sb_wordlist_items_pag, sb_recent_words
-            sb_wordlist_summary.text = f"You have found {len(words_found)}/{len(bee.all_words())} words"
+            global sb_wordlist_items_pag, sb_recent_words
             sb_wordlist_items_pag.clear()
             sb_recent_words.clear()
             progress_text.text = f"{len(words_found)}/{len(bee.all_words())} words found"
@@ -699,7 +699,6 @@
                  <div class="sb-wordlist-box">
                     <div class="sb-wordlist-heading">
                        <div class="sb-wordlist-heading-wrap sb-touch-button">
-                          <div class="sb-wordlist-summary">Loading...</div>
                           <div class="sb-recent-words-wrap">
                              <ul class="sb-recent-words">
                                  <li>Loading...</li>
