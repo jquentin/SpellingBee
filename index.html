@@ -75,6 +75,11 @@
         
             .sb-wordlist-drawer { position:relative; top:-45px; width:90% }
         
+            .rainbow-text {
+                background-image: linear-gradient(to left, violet, indigo, blue, green, #f7da21, orange, red);   -webkit-background-clip: text;
+                color: transparent;
+            }
+        
             html,
             body,
             div,
@@ -342,6 +347,9 @@
             def all_words(self):
                 return self.pangrams | self.other_words
                 
+            def is_pangram(self, word):
+                return set(word) == self.letters
+                
                   
         class HashedBee(Bee):
             
@@ -586,8 +594,11 @@
             progress_text.text = f"{len(words_found)}/{len(bee.all_words())} words found"
             progress_bar.style = {"width": f"{len(words_found)/len(bee.all_words()) * 100}%"}
             for word in sorted(words_found):
-                sb_wordlist_items_pag <= html.LI(word)
-                sb_recent_words <= html.LI(word)
+                word_item = html.LI(word)
+                if bee.is_pangram(word):
+                    word_item.class_name = "rainbow-text"
+                sb_wordlist_items_pag <= word_item
+                sb_recent_words <= word_item.clone()
             
         def button_enter_clicked(event):
             correct = bee.try_guess(word)
