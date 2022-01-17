@@ -103,6 +103,52 @@
             .hive-action {
                 height: 20px;
             }
+            
+            /* The Modal (background) */
+            .modal {
+              display: none; /* Hidden by default */
+              position: fixed; /* Stay in place */
+              z-index: 10; /* Sit on top */
+              padding-top: 100px; /* Location of the box */
+              left: 0;
+              top: 0;
+              width: 100%; /* Full width */
+              height: 100%; /* Full height */
+              overflow: auto; /* Enable scroll if needed */
+              background-color: rgb(0,0,0); /* Fallback color */
+              background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+
+            /* Modal Content */
+            .modal-content {
+              background-color: #fefefe;
+              margin: auto;
+              padding: 20px;
+              border: 1px solid #888;
+              width: 80%;
+            }
+
+            /* The Close Button */
+            .close {
+              color: #aaaaaa;
+              float: right;
+              font-size: 28px;
+              font-weight: bold;
+            }
+
+            .close:hover,
+            .close:focus {
+              color: #000;
+              text-decoration: none;
+              cursor: pointer;
+            }
+            
+            #username {
+                padding: 0;
+                border: 0;
+                top: -5;
+                position: relative;
+            }
         
         </style>
             
@@ -111,7 +157,7 @@
     <body onload="brython()">
         
         <script type="text/python">
-        from browser import document, alert, html
+        from browser import document, alert, html, load, window, timer
         from browser.local_storage import storage
         import urllib.request
         #import pydoc
@@ -126,6 +172,8 @@
         import math
         import time
         import locale
+        
+        load("bundle.js")
         
         UNIQUE_LETTERS_COUNT = 7
 
@@ -324,6 +372,8 @@
                     feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)], True, False)
                 clear_word()
                 storage[f"words_found_{language}"] = ",".join(list(words_found))
+                if result:
+                    window.increment_score()
                 return result
             
             @staticmethod
@@ -439,6 +489,12 @@
         sb_message_box = document.select(".sb-message-box")[0]
         progress_bar = document["progress-bar"]
         progress_text = document["progress-text"]
+        leaderboard_btn = document["leaderboard-btn"]
+        leaderboard_close_btn = document["leaderboard-close-btn"]
+        leaderboard_modal = document["leaderboard-modal"]
+        scores_list = document["scores-list"]
+        username_txt = document["username"]
+        
         
         if write_file:
             write_bees_file()
@@ -541,16 +597,43 @@
             update_letters()
             
             
-        def button_language_changed(event):
-            language = event.target.value
-            storage["language"] = event.target.value
-            document.location.reload()
+        def document_changed(event):
+            match event.target.name:
+                case "lang":
+                    language = event.target.value
+                    storage["language"] = event.target.value
+                    document.location.reload()
+                case "username":
+                    window.change_username(event.target.value)
+                    print(f"username_changed to {event.target.value}")
+                    load_and_update_username()
             
         def button_expand_wordlist_clicked(event):
             if "sb-expanded" in sb_content_box.class_name:
                 sb_content_box.class_name = "sb-content-box"
             else:
                 sb_content_box.class_name = "sb-content-box sb-expanded"
+                
+        def update_leaderboard():
+            scores = window.all_scores
+            scores_list.clear()
+            for score_obj in scores:
+                score = score_obj.to_dict()
+                scores_list <= html.LI(f"{score['key']}: {score['value']}")
+                
+        def button_leaderboard_clicked(event):
+            print("leaderboard_clicked")
+            leaderboard_modal.style.display = "block";
+            window.list_scores()
+            scores_list.clear()
+            timer.set_timeout(update_leaderboard, 1000)
+            
+        def button_leaderboard_close_clicked(event):
+            leaderboard_modal.style.display = "none";
+            
+        def window_clicked(event):
+            if event.target == leaderboard_modal:
+                leaderboard_modal.style.display = "none";
                 
         def clear_word():
             print("clear_word")
@@ -576,6 +659,15 @@
             button6_text.text = letters_ordered[6]
             buttonC_text.text = letters_ordered[0]
             
+        def update_username():
+            print("update_username")
+            username_txt.value = window.username
+            
+        def load_and_update_username():
+            print("load_and_update_username")
+            window.update_user()
+            timer.set_timeout(update_username, 1000)
+            
         def feedback(msg, isError, isPangram):
             class_name = "sb-message-box"
             if isPangram:
@@ -599,8 +691,11 @@
         document["button_delete"].bind("click", button_delete_clicked)
         document["button_shuffle"].bind("click", button_shuffle_clicked)
         document.select(".sb-toggle-expand")[0].bind("click", button_expand_wordlist_clicked)
+        leaderboard_btn.bind("click", button_leaderboard_clicked)
+        leaderboard_close_btn.bind("click", button_leaderboard_close_clicked)
+        window.bind('click', window_clicked)
         
-        document.bind('change', button_language_changed)
+        document.bind('change', document_changed)
         
         
         if "date" in storage and str(date) == storage["date"] and f"words_found_{language}" in storage:
@@ -614,6 +709,7 @@
         update_letters()
         update_word()
         update_word_list()
+        load_and_update_username()
         
         </script>
         
@@ -723,6 +819,30 @@
               </span>
             </label>
           </div>
+        </div>
+        
+        <div class="social-section" style="
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 50%;
+            height: 50%;
+        ">
+            <button id="leaderboard-btn" type="button" style="padding: 0;border: 0;">
+                <img src="https://cdn.iconscout.com/icon/free/png-512/leaderboard-2-386761.png" height="20" width="20">
+            </button>
+            <input type="text" id="username" name="username" value="Loading..."> </input>
+
+        </div>
+        
+        <div id="leaderboard-modal" class="modal">
+
+          <!-- Modal content -->
+          <div class="modal-content">
+            <span id="leaderboard-close-btn" class="close">&times;</span>
+            <ul id="scores-list"></ul>
+          </div>
+
         </div>
         
     </body>
