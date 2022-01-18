@@ -456,6 +456,8 @@
                     feedback("PANGRAM!", False, True)
                     words_found.add(word)
                     pangrams_found.add(word)
+                    window.increment_score(get_today_leaderboard_id(), 4)
+                    window.increment_score(get_all_times_leaderboard_id(), 4)
                     result = True
                 elif set(word).issubset(self.letters):
                     feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)], True, False)
@@ -464,8 +466,8 @@
                 clear_word()
                 storage[f"words_found_{language}"] = ",".join(list(words_found))
                 if result:
-                    window.increment_score(get_today_leaderboard_id())
-                    window.increment_score(get_all_times_leaderboard_id())
+                    window.increment_score(get_today_leaderboard_id(), 1)
+                    window.increment_score(get_all_times_leaderboard_id(), 1)
                 return result
             
             @staticmethod

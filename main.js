@@ -23,11 +23,11 @@ window.all_scores = {};
 
 window.username = "";
 
-window.increment_score = async function(leaderboardId)
+window.increment_score = async function(leaderboardId, amount)
 {
     var session = await client.authenticateDevice(deviceId);
 
-    var submission = {score: 1};
+    var submission = {score: amount};
     var record = await client.writeLeaderboardRecord(session, leaderboardId, submission);
     console.log("New record username %o and score %o", record.username, record.score);
 }
