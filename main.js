@@ -43,10 +43,7 @@ window.list_scores = async function (leaderboardId)
     while (result.next_cursor) {
       result = await client.listLeaderboardRecords(session, leaderboardId, null, null, result.next_cursor);
       result.records.forEach(function(record) {
-          window.all_scores.push({
-              key:   record.username,
-              value: record.score
-          });
+          window.all_scores[leaderboardId][record.username] = record.score;
       });
     }
     
