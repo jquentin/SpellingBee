@@ -12,6 +12,29 @@
         <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.3">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link rel="stylesheet" type="text/css" href="foundation.css">
+        <script>
+            function displayLeaderboard(evt, name) {
+                window.display_leaderboard(name);
+            }
+            
+            window.display_leaderboard = function(name){
+                var i, tabcontent, tablinks;
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    if (tabcontent[i].id == name)
+                        tabcontent[i].style.display = "block";
+                    else
+                        tabcontent[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    if (tablinks[i].name == name)
+                        tablinks[i].className += " active";
+                    else
+                        tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+            }
+        </script>
         <style>
             .custom-radios{
                 position:absolute;
@@ -150,6 +173,50 @@
                 position: relative;
                 width: calc(100% - 32px);
             }
+            
+            
+            
+            /* Style the tab */
+            .tab {
+              overflow: hidden;
+              border: 1px solid #ccc;
+              background-color: #f1f1f1;
+              display: flex;
+            }
+
+            /* Style the buttons inside the tab */
+            .tab button {
+              background-color: inherit;
+              float: left;
+              border: none;
+              outline: none;
+              cursor: pointer;
+              padding: 14px 16px;
+              transition: 0.3s;
+              font-size: 17px;
+            }
+
+            /* Change background color of buttons on hover */
+            .tab button:hover {
+              background-color: #ddd;
+            }
+
+            /* Create an active/current tablink class */
+            .tab button.active {
+              background-color: #ccc;
+            }
+
+            /* Style the tab content */
+            .tabcontent {
+              display: none;
+              padding: 6px 12px;
+              border: 1px solid #ccc;
+              border-top: none;
+            }
+            
+            .tablinks {
+                flex: 1;
+            }
         
         </style>
             
@@ -195,6 +262,11 @@
         KEY_OTHER_WORDS = "other_words"
         KEY_LETTERS = "letters"
         KEY_BEES = "bees"
+        
+        WEEKDAYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+        
+        ALL_TIMES_LEADERBOARD_ID = "all_time_points"
+        DAILY_LEADERBOARD_ID = "daily_points"
         
         words_found = set()
         pangrams_found = set()
@@ -255,6 +327,24 @@
                 if len(word) >= 4 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
                     res.append(Word(word, set(word)))
             return res
+            
+        def today_key() -> str:
+            return WEEKDAYS[day_of_week]
+            
+        def yesterday_key() -> str:
+            return WEEKDAYS[(day_of_week - 1) % 6]
+            
+        def get_leaderboard_id(day_key: str) -> str:
+            return f"{DAILY_LEADERBOARD_ID}_{day_key}_{language}"
+            
+        def get_today_leaderboard_id() -> str:
+            return get_leaderboard_id(today_key())
+            
+        def get_yesterday_leaderboard_id() -> str:
+            return get_leaderboard_id(yesterday_key())
+            
+        def get_all_times_leaderboard_id() -> str:
+            return f"{ALL_TIMES_LEADERBOARD_ID}_{language}"
 
         class Bee:
             letters: set
@@ -374,7 +464,8 @@
                 clear_word()
                 storage[f"words_found_{language}"] = ",".join(list(words_found))
                 if result:
-                    window.increment_score()
+                    window.increment_score(get_today_leaderboard_id())
+                    window.increment_score(get_all_times_leaderboard_id())
                 return result
             
             @staticmethod
@@ -389,6 +480,7 @@
         diff_min = 10
         diff_max = 50
         date = datetime.date.today()
+        day_of_week = date.weekday()
         url = None
 
         if locale.getlocale()[0] is None:
@@ -493,7 +585,9 @@
         leaderboard_btn = document["leaderboard-btn"]
         leaderboard_close_btn = document["leaderboard-close-btn"]
         leaderboard_modal = document["leaderboard-modal"]
-        scores_list = document["scores-list"]
+        scores_list_yesterday = document["scores-list-yesterday"]
+        scores_list_today = document["scores-list-today"]
+        scores_list_alltimes = document["scores-list-alltimes"]
         username_txt = document["username"]
         
         
@@ -616,18 +710,32 @@
                 sb_content_box.class_name = "sb-content-box sb-expanded"
                 
         def update_leaderboard():
-            scores = window.all_scores
-            scores_list.clear()
-            for score_obj in scores:
-                score = score_obj.to_dict()
-                scores_list <= html.LI(f"{score['key']}: {score['value']}")
+            scores = window.all_scores.to_dict()
+            
+            today_scores = scores[get_today_leaderboard_id()]
+            yesterday_scores = scores[get_yesterday_leaderboard_id()]
+            alltimes_scores = scores[get_all_times_leaderboard_id()]
+            
+            for user in today_scores.keys():
+                scores_list_today <= html.LI(f"{user}: {today_scores[user]}")
+                
+            for user in yesterday_scores.keys():
+                scores_list_yesterday <= html.LI(f"{user}: {yesterday_scores[user]}")
+                
+            for user in alltimes_scores.keys():
+                scores_list_alltimes <= html.LI(f"{user}: {alltimes_scores[user]}")
                 
         def button_leaderboard_clicked(event):
             print("leaderboard_clicked")
             leaderboard_modal.style.display = "block";
-            window.list_scores()
-            scores_list.clear()
+            window.list_scores(get_today_leaderboard_id())
+            window.list_scores(get_yesterday_leaderboard_id())
+            window.list_scores(get_all_times_leaderboard_id())
+            scores_list_yesterday.clear()
+            scores_list_today.clear()
+            scores_list_alltimes.clear()
             timer.set_timeout(update_leaderboard, 1000)
+            window.display_leaderboard("Today")
             
         def button_leaderboard_close_clicked(event):
             leaderboard_modal.style.display = "none";
@@ -846,7 +954,23 @@
                 font-weight: bold;
                 padding: 0 0 20 0;
             ">Leaderboards</h1>
-            <ul id="scores-list" style="padding: 10px;"></ul>
+            <div class="tab">
+                <button class="tablinks" onclick="displayLeaderboard(event, 'Yesterday')" name="Yesterday">Yesterday</button>
+                <button class="tablinks" onclick="displayLeaderboard(event, 'Today')" name="Today">Today</button>
+                <button class="tablinks" onclick="displayLeaderboard(event, 'AllTimes')" name="AllTimes">All Times</button>
+            </div>
+              
+            <div id="Yesterday" class="tabcontent">
+                <ul id="scores-list-yesterday" style="padding: 10px;"><li>test1yes</li><li>test2yes</li></ul>
+            </div>
+              
+            <div id="Today" class="tabcontent">
+                <ul id="scores-list-today" style="padding: 10px;"><li>test1tod</li><li>test2tod</li></ul>
+            </div>
+              
+            <div id="AllTimes" class="tabcontent">
+                <ul id="scores-list-alltimes" style="padding: 10px;"><li>test1all</li><li>test2all</li></ul>
+            </div>
           </div>
 
         </div>

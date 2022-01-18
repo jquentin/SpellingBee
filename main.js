@@ -19,35 +19,26 @@ catch (err) {
 
 var socket = client.createSocket();
 
-var leaderboardId = "all_time_points";
-
-window.all_scores = [];
+window.all_scores = {};
 
 window.username = "";
 
-window.increment_score = async function()
+window.increment_score = async function(leaderboardId)
 {
     var session = await client.authenticateDevice(deviceId);
-    
-    var appearOnline = true;
-    var connectionTimeout = 30;
-    await socket.connect(session, appearOnline, connectionTimeout);
 
     var submission = {score: 1};
     var record = await client.writeLeaderboardRecord(session, leaderboardId, submission);
     console.log("New record username %o and score %o", record.username, record.score);
 }
 
-window.list_scores = async function ()
+window.list_scores = async function (leaderboardId)
 {
-    window.all_scores = [];
+    window.all_scores[leaderboardId] = {};
     var session = await client.authenticateDevice(deviceId);
     var result = await client.listLeaderboardRecords(session, leaderboardId);
     result.records.forEach(function(record) {
-        window.all_scores.push({
-            key:   record.username,
-            value: record.score
-        });
+        window.all_scores[leaderboardId][record.username] = record.score;
     });
     while (result.next_cursor) {
       result = await client.listLeaderboardRecords(session, leaderboardId, null, null, result.next_cursor);
