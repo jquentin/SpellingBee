@@ -35,6 +35,12 @@
                 }
             }
         </script>
+        <script>
+
+            if (location.protocol == 'https:') {
+                window.location.href = window.location.href.replace(/^https:/, 'http:')
+            }
+        </script>
         <style>
             .custom-radios{
                 position:absolute;
