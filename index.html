@@ -138,7 +138,6 @@
               display: none; /* Hidden by default */
               position: fixed; /* Stay in place */
               z-index: 10; /* Sit on top */
-              padding-top: 100px; /* Location of the box */
               left: 0;
               top: 0;
               width: 100%; /* Full width */
@@ -155,6 +154,9 @@
               padding: 20px;
               border: 1px solid #888;
               width: 80%;
+              position: relative;
+              top: 5%;
+              height: 80%;
             }
 
             /* The Close Button */
@@ -217,6 +219,8 @@
               padding: 6px 12px;
               border: 1px solid #ccc;
               border-top: none;
+              height: calc(100% - 100px);
+              overflow-y: scroll;
             }
             
             .tablinks {
