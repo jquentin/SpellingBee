@@ -724,14 +724,19 @@
             yesterday_scores = scores[get_yesterday_leaderboard_id()]
             alltimes_scores = scores[get_all_times_leaderboard_id()]
             
-            for user in today_scores.keys():
-                scores_list_today <= html.LI(f"{user}: {today_scores[user]}")
+            medals = ["&#129351;", "&#129352;", "&#129353;"]
+            
+            for ind, user in enumerate(today_scores.keys()):
+                medal = medals[ind] if ind < len(medals) else ""
+                scores_list_today <= html.LI(f"{medal}{user}: {today_scores[user]}")
                 
-            for user in yesterday_scores.keys():
-                scores_list_yesterday <= html.LI(f"{user}: {yesterday_scores[user]}")
+            for ind, user in enumerate(yesterday_scores.keys()):
+                medal = medals[ind] if ind < len(medals) else ""
+                scores_list_yesterday <= html.LI(f"{medal}{user}: {yesterday_scores[user]}")
                 
-            for user in alltimes_scores.keys():
-                scores_list_alltimes <= html.LI(f"{user}: {alltimes_scores[user]}")
+            for ind, user in enumerate(alltimes_scores.keys()):
+                medal = medals[ind] if ind < len(medals) else ""
+                scores_list_alltimes <= html.LI(f"{medal}{user}: {alltimes_scores[user]}")
             
             leaderboards_loading.style.display = "none"
                 
