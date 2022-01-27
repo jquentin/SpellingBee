@@ -16,12 +16,15 @@ try {
 catch (err) {
     console.log("Error authenticating device: %o:%o", err.statusCode, err.message);
 }
+console.log("deviceId", deviceId);
 
 var socket = client.createSocket();
 
 window.all_scores = {};
 
 window.username = "";
+
+window.error = "";
 
 window.increment_score = async function(leaderboardId, amount)
 {
@@ -54,6 +57,8 @@ window.update_user = async function ()
     var session = await client.authenticateDevice(deviceId);
     var account = await client.getAccount(session);
     window.username = account.user.username;
+    console.log(session)
+    
 }
 
 window.change_username = async function (username)
@@ -70,5 +75,48 @@ window.change_username = async function (username)
     catch (e)
     {
         console.log(e);
+    }
+}
+
+window.connect_email = async function (email, password)
+{
+    window.error = "";
+    const DEVICE_KEY = "device";
+    console.log("Attempting to connect to email: ", email, " with password ", password);
+    var emailAccountExists = false;
+    try
+    {
+        const create = false;
+        console.log("authenticateEmail");
+        const remoteSession = await client.authenticateEmail(email, password, create, "username");
+        emailAccountExists = true;
+        console.log("emailAccountExists");
+        var localSession = await client.authenticateDevice(deviceId);
+        var ghostedAccountDeviceId = uuid.v4();
+        console.log("linkDevice to ghost", ghostedAccountDeviceId);
+        await client.linkDevice(localSession, {id: ghostedAccountDeviceId});
+        console.log("unlinkDevice from ghost", deviceId);
+        await client.unlinkDevice(localSession, {id: deviceId});
+        console.log("linkDevice to remote session", deviceId);
+        await client.linkDevice(remoteSession, {id: deviceId});
+        console.log("linked Device");
+        localStorage.setItem("email", email);
+    }
+    catch(e)
+    {
+        e.text().then(errMsg => { window.error += JSON.parse(errMsg).message + "\n"; console.log(window.error) });
+        if (emailAccountExists)
+            return;
+        var session = await client.authenticateDevice(deviceId);
+        try
+        {
+            await client.linkEmail(session, {email: email, password: password});
+            console.info("Successfully linked");
+            localStorage.setItem("email", email);
+        }
+        catch(e)
+        {
+            e.text().then(errMsg => { window.error += JSON.parse(errMsg).message + "\n"; console.log(window.error)});
+        }
     }
 }
