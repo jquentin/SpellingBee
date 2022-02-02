@@ -202,7 +202,7 @@ url = None
 
 if locale.getlocale()[0] is None:
     locale.setlocale(locale.LC_ALL, '')
-if locale.getlocale()[0] is not None:
+if locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
     language = locale.getlocale()[0][0:2]
 else:
     language = DEFAULT_LANGUAGE
