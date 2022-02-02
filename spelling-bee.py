@@ -85,7 +85,7 @@ def load_words(url: str):
     words = content.split()
     res = []
     for word in words:
-        if len(word) >= 3 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
+        if len(word) >= 4 and len(set(word)) <= 7 and "'" not in word and "-" not in word:
             res.append(Word(word, set(word)))
     return res
 
@@ -166,7 +166,7 @@ class HashedBee(Bee):
             elif word == "s" or word == "r":
                 letters_ordered = self.show_letters()
                 continue
-            elif len(word) < 3:
+            elif len(word) < 4:
                 print("Word too short")
             elif word in words_found:
                 print("Word already found")
