@@ -199,6 +199,7 @@ diff_min = 10
 diff_max = 50
 date = datetime.date.today()
 url = None
+hash_words = False
 
 if locale.getlocale()[0] is None:
     locale.setlocale(locale.LC_ALL, '')
@@ -235,6 +236,8 @@ for o, a in opts:
         url = diff_min = int(a)
     elif o == "-M":
         url = diff_max = int(a)
+    elif o == "-h":
+        hash_words = True
         
 def generate_bees():
     start_time = datetime.datetime.now()
@@ -260,9 +263,9 @@ def write_bees_file():
         if diff_min <= len(b.other_words) <= diff_max:
             bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
             for w in b.other_words:
-                bee_dict[KEY_OTHER_WORDS].append(hash(w))
+                bee_dict[KEY_OTHER_WORDS].append(hash(w) if hash_words else w)
             for w in b.pangrams:
-                bee_dict[KEY_PANGRAMS].append(hash(w))
+                bee_dict[KEY_PANGRAMS].append(hash(w) if hash_words else w)
             dict[KEY_BEES].append(bee_dict)
     print("Writing bees file")
     with open(bees_path(), "w") as word_file:
