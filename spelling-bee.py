@@ -258,12 +258,12 @@ def write_bees_file():
     print("Creating bees dictionary")
     for b in bees:
         if diff_min <= len(b.other_words) <= diff_max:
-        bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
-        for w in b.other_words:
-            bee_dict[KEY_OTHER_WORDS].append(hash(w))
-        for w in b.pangrams:
-            bee_dict[KEY_PANGRAMS].append(hash(w))
-        dict[KEY_BEES].append(bee_dict)
+            bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
+            for w in b.other_words:
+                bee_dict[KEY_OTHER_WORDS].append(hash(w))
+            for w in b.pangrams:
+                bee_dict[KEY_PANGRAMS].append(hash(w))
+            dict[KEY_BEES].append(bee_dict)
     print("Writing bees file")
     with open(bees_path(), "w") as word_file:
         json.dump(dict, word_file, indent = 1)
@@ -275,7 +275,7 @@ elif print_all:
     all_bees = ""
     index = 0
     for b in bees:
-        all_bees += f"{index} - {b.hashed_str()}\n"
+        all_bees += f"{index} - {str(b)}\n"
         index += 1
     pydoc.pager(all_bees)
 elif search_bee is not None:
