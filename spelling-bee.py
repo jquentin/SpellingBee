@@ -56,6 +56,9 @@ def words_path():
         
 def bees_path():
     return f"bees_{language}.txt"
+        
+def hashed_bees_path():
+    return f"bees_{language}_hashed.txt"
 
 class Word:
     word: str
@@ -199,7 +202,6 @@ diff_min = 10
 diff_max = 50
 date = datetime.date.today()
 url = None
-hash_words = False
 
 if locale.getlocale()[0] is None:
     locale.setlocale(locale.LC_ALL, '')
@@ -236,8 +238,6 @@ for o, a in opts:
         url = diff_min = int(a)
     elif o == "-M":
         url = diff_max = int(a)
-    elif o == "-h":
-        hash_words = True
         
 def generate_bees():
     start_time = datetime.datetime.now()
@@ -249,14 +249,19 @@ def generate_bees():
 
 def read_hashed_bees():
     print("Reading bees file")
-    word_file = open(bees_path())
+    word_file = open(hashed_bees_path())
     json_data = json.load(word_file)
     bees = [HashedBee.create_from_dict(bee_dict) for bee_dict in json_data[KEY_BEES] if diff_min <= len(bee_dict[KEY_OTHER_WORDS]) <= diff_max]
     print(f"Read {len(bees)} hashed bees with {diff_min} to {diff_max} words")
     return bees
     
-def write_bees_file():
+def write_bees_file(write_clear_file = False):
     bees = generate_bees()
+    write_bees_to_file(bees, True, hashed_bees_path())
+    if write_clear_file:
+        write_bees_to_file(bees, False, bees_path())
+        
+def write_bees_to_file(bees, hash_words, file_path):
     dict = {KEY_BEES: []}
     print("Creating bees dictionary")
     for b in bees:
@@ -268,11 +273,11 @@ def write_bees_file():
                 bee_dict[KEY_PANGRAMS].append(hash(w) if hash_words else w)
             dict[KEY_BEES].append(bee_dict)
     print("Writing bees file")
-    with open(bees_path(), "w") as word_file:
+    with open(file_path, "w") as word_file:
         json.dump(dict, word_file, indent = 1)
 
 if write_file:
-    write_bees_file()
+    write_bees_file(True)
 elif print_all:
     bees = generate_bees()
     all_bees = ""
@@ -286,7 +291,7 @@ elif search_bee is not None:
     bee = [b for b in bees if b.center == search_bee[0] and b.letters == set(search_bee)][0]
     print(bee)
 else:
-    if not os.path.exists(bees_path()):
+    if not os.path.exists(hashed_bees_path()):
         print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
         write_bees_file()
     bees = read_hashed_bees()
