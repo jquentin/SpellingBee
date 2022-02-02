@@ -32,6 +32,7 @@ KEY_PANGRAMS = "pangrams"
 KEY_OTHER_WORDS = "other_words"
 KEY_LETTERS = "letters"
 KEY_BEES = "bees"
+KEY_SHUFFLE_VERSION = "shuffle_version"
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
@@ -144,6 +145,10 @@ class Bee:
     def show_letters(self):
         other_letters = self.letters - set(self.center)
         return f"{self.center}{''.join(random.sample(list(other_letters),len(other_letters)))}"
+        
+    def show_letters_sorted(self):
+        other_letters_sorted = sorted(list(self.letters - set(self.center)))
+        return f"{self.center}{''.join(other_letters_sorted)}"
     
     def __str__(self):
         return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
@@ -202,6 +207,8 @@ diff_min = 10
 diff_max = 50
 date = datetime.date.today()
 url = None
+shuffle_bees = False
+shuffle_version = ""
 
 if locale.getlocale()[0] is None:
     locale.setlocale(locale.LC_ALL, '')
@@ -211,7 +218,7 @@ else:
     language = DEFAULT_LANGUAGE
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "min", "max"])
+    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:r:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "random", "min", "max"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
@@ -238,6 +245,10 @@ for o, a in opts:
         url = diff_min = int(a)
     elif o == "-M":
         url = diff_max = int(a)
+    elif o == "-r":
+        shuffle_bees = True
+        shuffle_version = a
+            
         
 def generate_bees():
     start_time = datetime.datetime.now()
@@ -257,12 +268,21 @@ def read_hashed_bees():
     
 def write_bees_file(write_clear_file = False):
     bees = generate_bees()
+    if shuffle_bees:
+        ### We sort the bees by the hash of (<letters in a fixed order> + <a shuffle version suffix>).
+        ### This way the bees order looks random, but the random order is fixed, and we can reshuffle
+        ### this order by incrementing the version, in case we add new bees and we don't want players
+        ### to experience a similar sequence of bees later. The shuffle version is included in the files.
+        bees.sort(key = lambda bee : hash(bee.show_letters_sorted() + shuffle_version))
     write_bees_to_file(bees, True, hashed_bees_path())
     if write_clear_file:
         write_bees_to_file(bees, False, bees_path())
         
 def write_bees_to_file(bees, hash_words, file_path):
-    dict = {KEY_BEES: []}
+    dict = {}
+    if shuffle_bees:
+        dict[KEY_SHUFFLE_VERSION] = shuffle_version
+    dict[KEY_BEES] = []
     print("Creating bees dictionary")
     for b in bees:
         if diff_min <= len(b.other_words) <= diff_max:
