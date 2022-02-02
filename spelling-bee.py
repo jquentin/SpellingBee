@@ -232,9 +232,9 @@ for o, a in opts:
     elif o == "-u":
         url = a
     elif o == "-m":
-        url = diff_min = a
+        url = diff_min = int(a)
     elif o == "-M":
-        url = diff_max = a
+        url = diff_max = int(a)
         
 def generate_bees():
     start_time = datetime.datetime.now()
@@ -257,6 +257,7 @@ def write_bees_file():
     dict = {KEY_BEES: []}
     print("Creating bees dictionary")
     for b in bees:
+        if diff_min <= len(b.other_words) <= diff_max:
         bee_dict = {KEY_LETTERS: b.show_letters(), KEY_PANGRAMS: [], KEY_OTHER_WORDS: []}
         for w in b.other_words:
             bee_dict[KEY_OTHER_WORDS].append(hash(w))
