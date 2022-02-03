@@ -20,8 +20,6 @@ console.log("deviceId", deviceId);
 
 var socket = client.createSocket();
 
-window.username = "";
-
 window.error = "";
 
 window.increment_score = async function(leaderboardId, amount)
@@ -50,13 +48,11 @@ window.list_scores = async function (leaderboardId, callback)
     callback(scores);
 }
 
-window.update_user = async function ()
+window.update_user = async function (callback)
 {
     var session = await client.authenticateDevice(deviceId);
     var account = await client.getAccount(session);
-    window.username = account.user.username;
-    console.log(session)
-    
+    callback(account.user.username);
 }
 
 window.change_username = async function (username)

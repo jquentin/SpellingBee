@@ -804,11 +804,11 @@
             button6_text.text = letters_ordered[6]
             buttonC_text.text = letters_ordered[0]
             
-        def update_username():
+        def update_username(username):
             print("update_username")
             for username_txt in username_txts:
-                username_txt.value = window.username
-                username_txt.text = window.username
+                username_txt.value = username
+                username_txt.text = username
             
         def update_email():
             if "email" in storage:
@@ -820,8 +820,7 @@
             
         def load_and_update_username():
             print("load_and_update_username")
-            window.update_user()
-            timer.set_timeout(update_username, 1000)
+            window.update_user(update_username)
             
         def feedback(msg, isError, isPangram):
             class_name = "sb-message-box"
