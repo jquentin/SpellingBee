@@ -431,7 +431,7 @@
                 letters_ordered = self.show_letters()
                 #while len(words_found) < words_count:
                     #try_guess(self)
-                    
+                
             def try_guess(self, word):
                 result = False
                 word = word.lower()
@@ -720,39 +720,29 @@
             else:
                 sb_content_box.class_name = "sb-content-box sb-expanded"
                 
-        def update_leaderboard():
-            scores = window.all_scores.to_dict()
-            
-            today_scores = scores[get_today_leaderboard_id()]
-            yesterday_scores = scores[get_yesterday_leaderboard_id()]
-            alltimes_scores = scores[get_all_times_leaderboard_id()]
+                
+        def update_leaderboard(scores_list, scores):
             
             medals = ["&#129351;", "&#129352;", "&#129353;"]
             
-            for ind, user in enumerate(today_scores.keys()):
+            for ind, user in enumerate(scores.keys()):
                 medal = medals[ind] if ind < len(medals) else ""
-                scores_list_today <= html.LI(f"{medal}{user}: {today_scores[user]}")
-                
-            for ind, user in enumerate(yesterday_scores.keys()):
-                medal = medals[ind] if ind < len(medals) else ""
-                scores_list_yesterday <= html.LI(f"{medal}{user}: {yesterday_scores[user]}")
-                
-            for ind, user in enumerate(alltimes_scores.keys()):
-                medal = medals[ind] if ind < len(medals) else ""
-                scores_list_alltimes <= html.LI(f"{medal}{user}: {alltimes_scores[user]}")
+                scores_list <= html.LI(f"{medal}{user}: {scores[user]}")
             
             leaderboards_loading.style.display = "none"
                 
         def button_leaderboard_clicked(event):
             print("leaderboard_clicked")
             leaderboard_modal.style.display = "block";
-            window.list_scores(get_today_leaderboard_id())
-            window.list_scores(get_yesterday_leaderboard_id())
-            window.list_scores(get_all_times_leaderboard_id())
-            scores_list_yesterday.clear()
+            
             scores_list_today.clear()
+            scores_list_yesterday.clear()
             scores_list_alltimes.clear()
-            timer.set_timeout(update_leaderboard, 1000)
+            
+            window.list_scores(get_today_leaderboard_id(), lambda scores : update_leaderboard(scores_list_today, scores.to_dict()))
+            window.list_scores(get_yesterday_leaderboard_id(), lambda scores : update_leaderboard(scores_list_yesterday, scores.to_dict()))
+            window.list_scores(get_all_times_leaderboard_id(), lambda scores : update_leaderboard(scores_list_alltimes, scores.to_dict()))
+            
             window.display_leaderboard("Today")
             leaderboards_loading.style.display = "inline"
         

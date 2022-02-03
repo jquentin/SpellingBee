@@ -20,8 +20,6 @@ console.log("deviceId", deviceId);
 
 var socket = client.createSocket();
 
-window.all_scores = {};
-
 window.username = "";
 
 window.error = "";
@@ -35,21 +33,21 @@ window.increment_score = async function(leaderboardId, amount)
     console.log("New record username %o and score %o", record.username, record.score);
 }
 
-window.list_scores = async function (leaderboardId)
+window.list_scores = async function (leaderboardId, callback)
 {
-    window.all_scores[leaderboardId] = {};
+    scores = {};
     var session = await client.authenticateDevice(deviceId);
     var result = await client.listLeaderboardRecords(session, leaderboardId);
     result.records.forEach(function(record) {
-        window.all_scores[leaderboardId][record.username] = record.score;
+        scores[record.username] = record.score;
     });
     while (result.next_cursor) {
       result = await client.listLeaderboardRecords(session, leaderboardId, null, null, result.next_cursor);
       result.records.forEach(function(record) {
-          window.all_scores[leaderboardId][record.username] = record.score;
+          scores[record.username] = record.score;
       });
     }
-    
+    callback(scores);
 }
 
 window.update_user = async function ()
