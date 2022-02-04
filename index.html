@@ -280,6 +280,7 @@
         words_found = set()
         pangrams_found = set()
         letters_ordered = ""
+        word = ""
         
         os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
@@ -411,6 +412,16 @@
                 res = f"{self.center.upper()}{''.join(random.sample(list(l.upper() for l in other_letters),len(other_letters)))}"
                 print(res)
                 return res
+
+            def show_letters_ordered(self):
+                other_letters = self.letters - set(self.center)
+                res = f"{self.center}{''.join(sorted(list(other_letters)))}"
+                return res
+
+            @staticmethod
+            def order_bee_letters(letters):
+                res = f"{letters[0]}{''.join(sorted(letters[1:]))}"
+                return res
             
             def __str__(self):
                 return f"{self.show_letters()} -> {len(self.all_words())}: {','.join(self.pangrams)},{','.join(self.other_words)}"
@@ -463,8 +474,6 @@
                     feedback("PANGRAM!", False, True)
                     words_found.add(word)
                     pangrams_found.add(word)
-                    window.increment_score(get_today_leaderboard_id(), 4)
-                    window.increment_score(get_all_times_leaderboard_id(), 4)
                     result = True
                 elif set(word).issubset(self.letters):
                     feedback(INCORRECT_WORDS[random.randint(0, len(INCORRECT_WORDS)-1)], True, False)
@@ -473,8 +482,7 @@
                 clear_word()
                 storage[f"words_found_{language}"] = ",".join(list(words_found))
                 if result:
-                    window.increment_score(get_today_leaderboard_id(), 1)
-                    window.increment_score(get_all_times_leaderboard_id(), 1)
+                    window.submit_word(word, language)
                 return result
             
             @staticmethod
@@ -621,22 +629,22 @@
                 print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
                 write_bees_file()
             bees = read_hashed_bees()
-            print(f"Spelling bee for {date}")
-            seed = (date - datetime.datetime.utcfromtimestamp(0).date()).days
-            print(f"Seed: {seed}")
-            random.seed(seed)
-            bee_index = random.randint(0, len(bees)-1)
-            print(f"Bee number: {bee_index}")
-            bee = bees[bee_index]
+            print(language)
+            window.get_current_letters(language, lambda letters : set_bee_and_start(letters))
+        
+        def set_bee_and_start(letters):
+            global letters_ordered, bee
+            letters_ordered = Bee.order_bee_letters(letters)
+            print(f"letters_ordered {letters_ordered}")
+            bee = next(b for b in bees if b.show_letters_ordered() == letters_ordered)
             print("Starting game")
-            
             bee.guess()
-        
-        
-        
-        
-        word = ""
-        letters_ordered = bee.show_letters()
+
+            update_letters()
+            update_word()
+            update_word_list()
+            update_email()
+            load_and_update_username()
         
         def add_letter(letter: str):
             print(f"add_letter({letter.strip()})")
@@ -866,12 +874,7 @@
             for lang in DEFAULT_WORD_LISTS.keys():
                 storage[f"words_found_{lang}"] = ""
             storage["date"] = str(date)
-        
-        update_letters()
-        update_word()
-        update_word_list()
-        update_email()
-        load_and_update_username()
+
         
         </script>
         

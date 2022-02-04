@@ -22,13 +22,19 @@ var socket = client.createSocket();
 
 window.error = "";
 
-window.increment_score = async function(leaderboardId, amount)
+window.submit_word = async function(word, language)
+{
+    console.log("SubmitWord: %s ; in language: %s", word, language);
+    var session = await client.authenticateDevice(deviceId);
+    var response = await client.rpc(session, "SubmitWord", JSON.stringify({ word: word, language: language }));
+    console.log("SubmitWord response: %s", response);
+}
+
+window.get_current_letters = async function (language, callback)
 {
     var session = await client.authenticateDevice(deviceId);
-
-    var submission = {score: amount};
-    var record = await client.writeLeaderboardRecord(session, leaderboardId, submission);
-    console.log("New record username %o and score %o", record.username, record.score);
+    var response = await client.rpc(session, "GetCurrentLetters", JSON.stringify({ language: language }));
+    callback(response.payload.letters);
 }
 
 window.list_scores = async function (leaderboardId, callback)
