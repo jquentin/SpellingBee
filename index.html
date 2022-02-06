@@ -730,7 +730,7 @@
                 
                 
         def update_leaderboard(scores_list, scores):
-            
+
             medals = ["&#129351;", "&#129352;", "&#129353;"]
             
             for ind, user in enumerate(scores.keys()):
@@ -747,9 +747,9 @@
             scores_list_yesterday.clear()
             scores_list_alltimes.clear()
             
-            window.list_scores(get_today_leaderboard_id(), lambda scores : update_leaderboard(scores_list_today, scores.to_dict()))
-            window.list_scores(get_yesterday_leaderboard_id(), lambda scores : update_leaderboard(scores_list_yesterday, scores.to_dict()))
-            window.list_scores(get_all_times_leaderboard_id(), lambda scores : update_leaderboard(scores_list_alltimes, scores.to_dict()))
+            window.list_scores(get_today_leaderboard_id(), lambda scores_today : update_leaderboard(scores_list_today, scores_today.to_dict()))
+            window.list_scores(get_yesterday_leaderboard_id(), lambda scores_yesterday : update_leaderboard(scores_list_yesterday, scores_yesterday.to_dict()))
+            window.list_scores(get_all_times_leaderboard_id(), lambda scores_all_times : update_leaderboard(scores_list_alltimes, scores_all_times.to_dict()))
             
             window.display_leaderboard("Today")
             leaderboards_loading.style.display = "inline"
