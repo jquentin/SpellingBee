@@ -732,9 +732,9 @@
 
             medals = ["&#129351;", "&#129352;", "&#129353;"]
             
-            for ind, user in enumerate(scores.keys()):
+            for ind, score in enumerate(scores):
                 medal = medals[ind] if ind < len(medals) else ""
-                scores_list <= html.LI(f"{medal}{user}: {scores[user]}")
+                scores_list <= html.LI(f"{medal}{score.to_dict()['username']}: {score.to_dict()['score']}")
             
             leaderboards_loading.style.display = "none"
                 
@@ -746,9 +746,9 @@
             scores_list_yesterday.clear()
             scores_list_alltimes.clear()
             
-            window.list_scores(get_today_leaderboard_id(), lambda scores_today : update_leaderboard(scores_list_today, scores_today.to_dict()))
-            window.list_scores(get_yesterday_leaderboard_id(), lambda scores_yesterday : update_leaderboard(scores_list_yesterday, scores_yesterday.to_dict()))
-            window.list_scores(get_all_times_leaderboard_id(), lambda scores_all_times : update_leaderboard(scores_list_alltimes, scores_all_times.to_dict()))
+            window.list_scores(get_today_leaderboard_id(), lambda scores_today : update_leaderboard(scores_list_today, scores_today))
+            window.list_scores(get_yesterday_leaderboard_id(), lambda scores_yesterday : update_leaderboard(scores_list_yesterday, scores_yesterday))
+            window.list_scores(get_all_times_leaderboard_id(), lambda scores_all_times : update_leaderboard(scores_list_alltimes, scores_all_times))
             
             window.display_leaderboard("Today")
             leaderboards_loading.style.display = "inline"

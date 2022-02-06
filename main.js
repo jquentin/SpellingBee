@@ -39,13 +39,13 @@ window.get_current_letters = async function (language, callback)
 
 window.list_scores = async function (leaderboardId, callback)
 {
-    scores = {};
     var session = await client.authenticateDevice(deviceId);
     var result = await client.rpc(session, "ListLeaderboard", JSON.stringify({ leaderboardId: leaderboardId }));
+    scores = [];
     console.log(result.payload.records);
     result.payload.records.forEach(function(record) {
         console.log(record.username, record.score);
-        scores[record.username] = record.score;
+        scores.push({username: record.username, score: record.score});
     });
     callback(scores);
 }
