@@ -41,16 +41,12 @@ window.list_scores = async function (leaderboardId, callback)
 {
     scores = {};
     var session = await client.authenticateDevice(deviceId);
-    var result = await client.listLeaderboardRecords(session, leaderboardId);
-    result.records.forEach(function(record) {
+    var result = await client.rpc(session, "ListLeaderboard", JSON.stringify({ leaderboardId: leaderboardId }));
+    console.log(result.payload.records);
+    result.payload.records.forEach(function(record) {
+        console.log(record.username, record.score);
         scores[record.username] = record.score;
     });
-    while (result.next_cursor) {
-      result = await client.listLeaderboardRecords(session, leaderboardId, null, null, result.next_cursor);
-      result.records.forEach(function(record) {
-          scores[record.username] = record.score;
-      });
-    }
     callback(scores);
 }
 
