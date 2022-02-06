@@ -33,6 +33,10 @@
                         tablinks[i].className = tablinks[i].className.replaceAll(" active", "");
                 }
             }
+
+            function displayYesterday(evt, name) {
+                window.display_leaderboard(name);
+            }
         </script>
         <script>
 
@@ -495,7 +499,7 @@
         search_bee = None
         diff_min = 10
         diff_max = 50
-        date = datetime.date.today()
+        date = datetime.datetime.utcnow().date()
         day_of_week = date.weekday()
         url = None
 
@@ -629,7 +633,6 @@
 
         def set_bee_and_start(bee_json):
             print(bee_json)
-            print(bee_json["letters"])
             global letters_ordered, bee
             bee = HashedBee.create_from_dict(bee_json)
             letters_ordered = bee.show_letters()
@@ -641,7 +644,23 @@
             update_word_list()
             update_email()
             load_and_update_username()
-        
+            window.get_yesterdays_bee(language, lambda bee_json: setup_yesterday(bee_json.to_dict()["bee"]))
+
+        def setup_yesterday(bee_json):
+            print(bee_json)
+            yesterday_wordlist = document["yesterday-wordlist"]
+            yesterday_wordlist.clear()
+            for word in sorted(bee_json["pangrams"]):
+                word_item = html.LI(word)
+                if len(set(word)) == 7:
+                    word_item.class_name = "rainbow-text"
+                yesterday_wordlist <= word_item
+            for word in sorted(bee_json["other_words"]):
+                word_item = html.LI(word)
+                if len(set(word)) == 7:
+                    word_item.class_name = "rainbow-text"
+                yesterday_wordlist <= word_item
+
         def add_letter(letter: str):
             print(f"add_letter({letter.strip()})")
             global word
@@ -721,9 +740,10 @@
         def button_expand_wordlist_clicked(event):
             if "sb-expanded" in sb_content_box.class_name:
                 sb_content_box.class_name = "sb-content-box"
+                document["yesterday-button"].style.display = "Block"
             else:
                 sb_content_box.class_name = "sb-content-box sb-expanded"
-                
+                document["yesterday-button"].style.display = "None"
                 
         def update_leaderboard(scores_list, scores):
 
@@ -774,6 +794,10 @@
         def button_email_submit_clicked(event):
             window.connect_email(document["email-input"].value, document["password-input"].value)
             timer.set_timeout(on_email_submit_complete, 1000)
+
+        def button_yesterday_clicked(event):
+            print("button_yesterday_clicked")
+            document["yesterday-modal"].style.display = "Block"
             
         def on_email_submit_complete():
             if window.error == "":
@@ -854,6 +878,7 @@
         document["account-btn"].bind('click', button_account_clicked)
         document["email-connect-btn"].bind('click', button_email_connect_clicked)
         document["email-submit"].bind('click', button_email_submit_clicked)
+        document["yesterday-button"].bind('click', button_yesterday_clicked)
         
         document.bind('change', document_changed)
         
@@ -910,52 +935,61 @@
                     </div>
                  </div>
               </div>
-              <div class="sb-controls-box">
-                 <div class="sb-controls">
-                    <div class="sb-message-box"></div>
-                    <div class="sb-hive-input">
-                       <span class="sb-hive-input-content" style="font-size: 1em;"></span>
-                       <div class="sb-hive-hidden-input"><span class="sb-hive-input-content" style="font-size: 1em;"></span></div>
-                    </div>
-                    <div class="sb-hive">
-                       <div class="hive">
-                          <svg id="buttonC" type="button" class="hive-cell center" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button1" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button2" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button3" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button4" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button5" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
-                          <svg id="button6" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
-                             <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
-                             <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
-                          </svg>
+
+               <div class="sb-controls-box">
+                   <div class="sb-controls">
+                       <div class="sb-message-box"></div>
+                       <div class="sb-hive-input">
+                           <span class="sb-hive-input-content" style="font-size: 1em;"></span>
+                           <div class="sb-hive-hidden-input"><span class="sb-hive-input-content" style="font-size: 1em;"></span></div>
                        </div>
-                    </div>
-                    <div class="hive-actions">
-                       <div id="button_enter" type="button" class="hive-action hive-action__submit sb-touch-button" style="touch-action: manipulation;">Enter</div>
-                       <div id="button_delete" type="button" class="hive-action hive-action__delete sb-touch-button" style="touch-action: manipulation;">Delete</div>
-                       <div id="button_shuffle" type="button" class="hive-action hive-action__shuffle sb-touch-button" style="touch-action: manipulation;"></div>
-                    </div>
-                 </div>
-              </div>
+                       <div class="sb-hive">
+                           <div class="hive">
+                               <svg id="buttonC" type="button" class="hive-cell center" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button1" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button2" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button3" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button4" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button5" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                               <svg id="button6" type="button" class="hive-cell outer" viewBox="0 0 120 103.92304845413263" style="touch-action: manipulation;">
+                                   <polygon class="cell-fill" points="0,51.96152422706631 30,0 90,0 120,51.96152422706631 90,103.92304845413263 30,103.92304845413263" stroke="white" stroke-width="7.5"></polygon>
+                                   <text class="cell-letter" x="50%" y="50%" dy="0.35em"></text>
+                               </svg>
+                           </div>
+                       </div>
+                       <div class="hive-actions">
+                           <div id="button_enter" type="button" class="hive-action hive-action__submit sb-touch-button" style="touch-action: manipulation;">Enter</div>
+                           <div id="button_delete" type="button" class="hive-action hive-action__delete sb-touch-button" style="touch-action: manipulation;">Delete</div>
+                           <div id="button_shuffle" type="button" class="hive-action hive-action__shuffle sb-touch-button" style="touch-action: manipulation;"></div>
+                       </div>
+                   </div>
+               </div>
+              <div class="yesterday-box" style="
+                margin: 0px 12px;
+                display: block;
+                position: absolute;
+                top: 120px;
+">
+                   <button id="yesterday-button">Yesterday</button>
+               </div>
            </div>
         </div>
         
@@ -987,7 +1021,7 @@
             top: 6px;
             left: 14px;
             width: 50%;
-            height: 50%;
+            height: 50px;
         ">
             <button id="account-btn" type="button" style="padding: 0;border: 0; background-color: transparent;">
                 <img src="user.png" height="20" width="20">
@@ -1117,6 +1151,29 @@
                       
                   </div>
                 
+            </div>
+        </div>
+
+        <div id="yesterday-modal" class="modal">
+            <div class="modal-content">
+
+                <span id="yesterday-close-btn" class="modal-close-btn close" style="position: relative; top: -15; right: -5;">&times;</span>
+                <h1 style="
+                      text-align: center;
+                      font-weight: bold;
+                      padding: 0 0 20 0;
+                  ">
+                    Yesterday's solutions
+                    <img id="yesterday-loading" src="https://c.tenor.com/I6kN-6X7nhAAAAAi/loading-buffering.gif" style="
+                          display: none;
+                          width: 20;
+                          margin: 0 0 0 10;
+                          position: relative;
+                          top: 4;
+                      ">
+                </h1>
+                <ul id="yesterday-wordlist" class="sb-wordlist-items-pag" style="margin: 0px 20px;">
+                </ul>
             </div>
         </div>
 
