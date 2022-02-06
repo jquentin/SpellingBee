@@ -624,18 +624,15 @@
             bee = [b for b in bees if b.center == search_bee[0] and b.letters == set(search_bee)][0]
             print(bee)
         else:
-            if not os.path.exists(bees_path()):
-                print(f"First time playing in lang={language} -> generating bees file. This might take a few minutes.")
-                write_bees_file()
-            bees = read_hashed_bees()
             print(language)
-            window.get_current_letters(language, lambda letters : set_bee_and_start(letters))
-        
-        def set_bee_and_start(letters):
+            window.get_todays_bee(language, lambda bee_json: set_bee_and_start(bee_json.to_dict()["bee"]))
+
+        def set_bee_and_start(bee_json):
+            print(bee_json)
+            print(bee_json["letters"])
             global letters_ordered, bee
-            letters_ordered = Bee.order_bee_letters(letters)
-            print(f"letters_ordered {letters_ordered}")
-            bee = next(b for b in bees if b.show_letters_ordered() == letters_ordered)
+            bee = HashedBee.create_from_dict(bee_json)
+            letters_ordered = bee.show_letters()
             print("Starting game")
             bee.guess()
 

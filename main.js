@@ -30,11 +30,18 @@ window.submit_word = async function(word, language)
     console.log("SubmitWord response: %s", response);
 }
 
-window.get_current_letters = async function (language, callback)
+window.get_todays_bee = async function (language, callback)
 {
     var session = await client.authenticateDevice(deviceId);
-    var response = await client.rpc(session, "GetCurrentLetters", JSON.stringify({ language: language }));
-    callback(response.payload.letters);
+    var response = await client.rpc(session, "GetTodaysBee", JSON.stringify({ language: language }));
+    callback(response.payload);
+}
+
+window.get_yesterdays_bee = async function (language, callback)
+{
+    var session = await client.authenticateDevice(deviceId);
+    var response = await client.rpc(session, "GetYesterdaysBee", JSON.stringify({ language: language }));
+    callback(response.payload);
 }
 
 window.list_scores = async function (leaderboardId, callback)
