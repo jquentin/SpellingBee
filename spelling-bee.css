@@ -442,7 +442,8 @@
 	padding: 4px 0 4px 1px;
 	margin-bottom: 7px;
 	border-bottom: 1px solid #dcdcdc;
-	width: calc(50% - 22px)
+	width: calc(50% - 25px);
+	list-style: none;
 }
 
 .sb-wordlist-items {
@@ -572,13 +573,14 @@
 	}
 	.sb-wordlist-items-pag>li {
 		margin-right: 25px;
-		width: calc(50% - 25px)
+		width: calc(50% - 28px);
+		list-style: none;
 	}
 }
 
 @media (min-width: 992px) {
 	.sb-wordlist-items-pag>li {
-		width: calc(33.33% - 25px)
+		width: calc(50% - 28px);
 	}
 }
 
