@@ -326,7 +326,7 @@
                 print(f"Downloading words: {loading_bar} {math.floor(loading_rate * 100)}%", end='\r')
             else:
                 print(f"Downloading words: {loading_bar} 100%")
-
+            
         def load_words(url: str):
             urllib.request.urlretrieve(url, words_path(), show_progress)
             word_file = open(words_path())
@@ -629,34 +629,31 @@
             print(bee)
         else:
             print(language)
-            window.get_todays_bee(language, lambda bee_json: set_bee_and_start(bee_json.to_dict()["bee"]))
+            window.rpc("GetTodaysBeeAndWordsFound", json.dumps({"language": language}), lambda bee_json: set_bee_and_start(bee_json.to_dict()))
 
         def set_bee_and_start(bee_json):
             print(bee_json)
-            global letters_ordered, bee
-            bee = HashedBee.create_from_dict(bee_json)
+            global letters_ordered, bee, words_found
+            bee = HashedBee.create_from_dict(bee_json["bee"])
             letters_ordered = bee.show_letters()
             print("Starting game")
             bee.guess()
+            words_found = set(bee_json["wordsFound"])
 
             update_letters()
             update_word()
             update_word_list()
             update_email()
             load_and_update_username()
-            window.get_yesterdays_bee(language, lambda bee_json: setup_yesterday(bee_json.to_dict()["bee"]))
+            window.rpc("GetYesterdaysBeeAndWordsFound", json.dumps({"language": language}), lambda bee_json: setup_yesterday(bee_json.to_dict()))
 
         def setup_yesterday(bee_json):
             print(bee_json)
             yesterday_wordlist = document["yesterday-wordlist"]
             yesterday_wordlist.clear()
-            for word in sorted(bee_json["pangrams"]):
-                word_item = html.LI(word)
-                if len(set(word)) == 7:
-                    word_item.class_name = "rainbow-text"
-                yesterday_wordlist <= word_item
-            for word in sorted(bee_json["other_words"]):
-                word_item = html.LI(word)
+            for word in sorted(bee_json["bee"]["pangrams"]) + sorted(bee_json["bee"]["other_words"]):
+                prefix = "&#9989;" if word in bee_json["wordsFound"] else "&#10060;"
+                word_item = html.LI(f"{prefix} {word}")
                 if len(set(word)) == 7:
                     word_item.class_name = "rainbow-text"
                 yesterday_wordlist <= word_item
