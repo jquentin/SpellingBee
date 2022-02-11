@@ -427,7 +427,7 @@
 .sb-wordlist-items-pag {
 	width: 100%;
 	display: flex;
-	flex-flow: column wrap;
+	flex-flow: row wrap;
 	align-content: flex-start;
 	height: calc(100% - 38px);
 	padding: 20px 0 24px
@@ -442,7 +442,7 @@
 	padding: 4px 0 4px 1px;
 	margin-bottom: 7px;
 	border-bottom: 1px solid #dcdcdc;
-	width: calc(50% - 20px)
+	width: calc(50% - 22px)
 }
 
 .sb-wordlist-items {

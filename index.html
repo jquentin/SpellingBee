@@ -9,7 +9,7 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.3">
+        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.4">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <script>
             function displayLeaderboard(evt, name) {
@@ -1172,8 +1172,10 @@
                           top: 4;
                       ">
                 </h1>
-                <ul id="yesterday-wordlist" class="sb-wordlist-items-pag" style="margin: 0px 20px;">
-                </ul>
+                <div style="overflow-y: scroll; height: calc(100% - 30px); overflow-x: hidden;">
+                    <ul id="yesterday-wordlist" class="sb-wordlist-items-pag" style="margin: 0px 20px; padding: 0px;">
+                    </ul>
+                </div>
             </div>
         </div>
 
