@@ -44,6 +44,13 @@ window.get_yesterdays_bee = async function (language, callback)
     callback(response.payload);
 }
 
+window.rpc = async function (id, input, callback)
+{
+    const session = await client.authenticateDevice(deviceId);
+    const response = await client.rpc(session, id, input);
+    callback(response.payload);
+}
+
 window.list_scores = async function (leaderboardId, callback)
 {
     var session = await client.authenticateDevice(deviceId);
