@@ -745,11 +745,17 @@
         def update_leaderboard(scores_list, scores):
 
             medals = ["&#129351;", "&#129352;", "&#129353;"]
-            
-            for ind, score in enumerate(scores):
-                medal = medals[ind] if ind < len(medals) else ""
-                scores_list <= html.LI(f"{medal}{score.to_dict()['username']}: {score.to_dict()['score']}")
-            
+            medal_index = -1
+            last_score = sys.maxsize
+            for ind, score_entry in enumerate(scores):
+                score = score_entry.to_dict()['score']
+                username = score_entry.to_dict()['username']
+                if score < last_score:
+                     medal_index = ind
+                     last_score = score
+                medal = medals[medal_index] if medal_index < len(medals) else ""
+                scores_list <= html.LI(f"{medal}{username}: {score}")
+
             leaderboards_loading.style.display = "none"
                 
         def button_leaderboard_clicked(event):
