@@ -345,7 +345,7 @@
             return WEEKDAYS[day_of_week]
             
         def yesterday_key() -> str:
-            return WEEKDAYS[(day_of_week - 1) % 6]
+            return WEEKDAYS[(day_of_week - 1) % 7]
             
         def get_leaderboard_id(day_key: str) -> str:
             return f"{DAILY_LEADERBOARD_ID}_{day_key}_{language}"
