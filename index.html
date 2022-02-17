@@ -801,7 +801,22 @@
         def button_yesterday_clicked(event):
             print("button_yesterday_clicked")
             document["yesterday-modal"].style.display = "Block"
-            
+
+        def button_report_clicked(event):
+            document["report-modal"].style.display = "Block"
+
+        def button_report_submit_clicked(event):
+            word = document["report-word-input"].value
+            shouldExist = document["report-to-add"].checked
+            window.rpc("ReportWord", json.dumps({"word": word, "language": language, "shouldExist": shouldExist}), lambda response: print("word reported"))
+            close_modals()
+            clear_report_modal()
+
+        def clear_report_modal():
+            document["report-to-add"].checked = True
+            document["report-to-remove"].checked = False
+            document["report-word-input"].value = ""
+
         def on_email_submit_complete():
             if window.error == "":
                 update_email()
@@ -882,8 +897,12 @@
         document["email-connect-btn"].bind('click', button_email_connect_clicked)
         document["email-submit"].bind('click', button_email_submit_clicked)
         document["yesterday-button"].bind('click', button_yesterday_clicked)
-        
+        document["report-button"].bind('click', button_report_clicked)
+        document["report-submit"].bind('click', button_report_submit_clicked)
+
         document.bind('change', document_changed)
+
+        clear_report_modal()
         
         print(".modal_close_btn")
         for close_btn in document.select(".modal-close-btn"):
@@ -1182,6 +1201,47 @@
             </div>
         </div>
 
+        <div id="report-modal" class="modal">
+            <div class="modal-content">
+
+                <span id="report-close-btn" class="modal-close-btn close" style="position: relative; top: -15; right: -5;">&times;</span>
+                <h1 style="
+                      text-align: center;
+                      font-weight: bold;
+                      padding: 0 0 20 0;
+                  ">
+                    Report a word
+                    <img id="report-loading" src="https://c.tenor.com/I6kN-6X7nhAAAAAi/loading-buffering.gif" style="
+                          display: none;
+                          width: 20;
+                          margin: 0 0 0 10;
+                          position: relative;
+                          top: 4;
+                      ">
+                </h1>
+                <div style="overflow-y: scroll; height: calc(100% - 30px); overflow-x: hidden;">
+                    <input type="radio" id="report-to-add" name="report-type" value="report-to-add">
+                    <label for="report-to-add">Word is missing</label><br>
+                    <input type="radio" id="report-to-remove" name="report-type" value="report-to-remove">
+                    <label for="report-to-remove">Word should not be here</label><br>
+                    <input id="report-word-input" />
+                    <button id="report-submit">Submit</button>
+                </div>
+            </div>
+        </div>
+
+        <button id="report-button" style="
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            /* background-image: url(https://static.wikia.nocookie.net/among-us-wiki/images/9/94/Report.png/revision/latest/scale-to-width-down/314?cb=20210714123920); */
+            border: 0px;
+            background-color: transparent;
+            text-align: right;
+            padding: 0px;
+            ">
+            <img src="https://static.wikia.nocookie.net/among-us-wiki/images/9/94/Report.png" height="40" width="40">
+        </button>
         
     </body>
 
