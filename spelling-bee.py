@@ -126,11 +126,8 @@ class HashedBee(Bee):
         result = False
         word = word.lower()
         print(f"try_guess({word})")
-        cls()
         print(f"{letters_ordered}")
         hash_word = str(hash(word))
-        if verbose:
-            print(f"hash: {hash_word}")
         if word == "":
             return
         elif len(word) < 4:
