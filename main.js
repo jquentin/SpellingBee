@@ -22,6 +22,11 @@ var socket = client.createSocket();
 
 window.error = "";
 
+window.get_language = function()
+{
+    return navigator.language;
+}
+
 window.submit_word = async function(word, language)
 {
     console.log("SubmitWord: %s ; in language: %s", word, language);

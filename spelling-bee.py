@@ -1,18 +1,14 @@
 from browser import document, alert, html, load, window, timer
 from browser.local_storage import storage
 import urllib.request
-#import pydoc
 import random
-import os
 import sys
-import getopt
 import datetime
 import json
 import hashlib
 import unicodedata
 import math
 import time
-import locale
 
 load("bundle.js")
 
@@ -162,14 +158,14 @@ class HashedBee(Bee):
 date = datetime.datetime.utcnow().date()
 day_of_week = date.weekday()
 
-if locale.getlocale()[0] is None:
-    locale.setlocale(locale.LC_ALL, '')
 if "language" in storage.keys() and storage["language"] in DEFAULT_WORD_LISTS.keys():
     language = storage["language"]
-elif locale.getlocale()[0] is not None and locale.getlocale()[0][0:2] in DEFAULT_WORD_LISTS.keys():
-    language = locale.getlocale()[0][0:2]
 else:
-    language = DEFAULT_LANGUAGE
+    device_language = window.get_language()
+    if device_language is not None and device_language[0:2] in DEFAULT_WORD_LISTS.keys():
+        language = device_language[0:2]
+    else:
+        language = DEFAULT_LANGUAGE
 
 for lang_flag in document.get(name="lang"):
     lang_flag.checked = lang_flag.value == language
