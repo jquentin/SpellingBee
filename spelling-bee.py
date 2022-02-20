@@ -2,7 +2,6 @@ from browser import document, alert, html, load, window, timer
 from browser.local_storage import storage
 import urllib.request
 import random
-import sys
 import datetime
 import json
 import hashlib
@@ -146,7 +145,6 @@ class HashedBee(Bee):
         else:
             feedback(WRONG_LETTERS[random.randint(0, len(WRONG_LETTERS)-1)], True, False)
         clear_word()
-        storage[f"words_found_{language}"] = ",".join(list(words_found))
         if result:
             window.submit_word(word, language)
         return result
@@ -322,11 +320,11 @@ def update_leaderboard(scores_list, scores):
 
     medals = ["&#129351;", "&#129352;", "&#129353;"]
     medal_index = -1
-    last_score = sys.maxsize
+    last_score = -1
     for ind, score_entry in enumerate(scores):
         score = score_entry.to_dict()['score']
         username = score_entry.to_dict()['username']
-        if score < last_score:
+        if score != last_score:
              medal_index = ind
              last_score = score
         medal = medals[medal_index] if medal_index < len(medals) else ""
@@ -484,11 +482,3 @@ for close_btn in document.select(".modal-close-btn"):
     print(close_btn)
     close_btn.bind('click', button_modal_close_clicked)
 
-
-if "date" in storage and str(date) == storage["date"] and f"words_found_{language}" in storage:
-    if storage[f"words_found_{language}"] != "":
-        words_found = set(storage[f"words_found_{language}"].split(","))
-else:
-    for lang in DEFAULT_WORD_LISTS.keys():
-        storage[f"words_found_{lang}"] = ""
-    storage["date"] = str(date)
