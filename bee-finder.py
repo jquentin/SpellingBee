@@ -97,7 +97,8 @@ def load_words(url: str):
     word_file = open(words_path())
     content = word_file.read()
     content = content.lower()
-    content = apply_character_transformations(content, LANGUAGE_CHARACTER_TRANSFORMATIONS[language])
+    if language in LANGUAGE_CHARACTER_TRANSFORMATIONS.keys():
+        content = apply_character_transformations(content, LANGUAGE_CHARACTER_TRANSFORMATIONS[language])
     content = unicodedata.normalize('NFKD', content).encode('ascii', 'ignore').decode("utf-8")
     word_file = open(words_path(), "w")
     word_file.write(content)
