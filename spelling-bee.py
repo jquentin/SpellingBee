@@ -19,7 +19,8 @@ WRONG_LETTERS = ["Wrong letters", "That doesn't work", "Doesn't fit"]
 
 DEFAULT_WORD_LISTS={
     "fr": "https://raw.githubusercontent.com/hbenbel/French-Dictionary/master/dictionary/dictionary.txt",
-    "en": "http://www.mieliestronk.com/corncob_lowercase.txt"
+    "en": "http://www.mieliestronk.com/corncob_lowercase.txt",
+    "de": "https://raw.githubusercontent.com/enz/german-wordlist/master/words"
 }
 
 DEFAULT_LANGUAGE = "en"
