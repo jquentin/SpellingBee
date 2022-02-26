@@ -277,8 +277,13 @@ def update_word_list():
         word_item = html.LI(word)
         if bee.is_pangram(word):
             word_item.class_name = "rainbow-text"
+            pangrams_found.add(word)
         sb_wordlist_items_pag <= word_item
         sb_recent_words <= word_item.clone()
+    for index, pangram in enumerate(bee.pangrams):
+        img_src = "star-full.png" if index < len(pangrams_found) else "star-empty.png"
+        pos_x = (len(bee.pangrams) - index - 1) * 18 + 6
+        document["progress-text-container"] <= html.IMG("", src=img_src, Class="pangram-star", style={"right": f"{pos_x}px"})
 
 def button_enter_clicked(event):
     correct = bee.try_guess(word)
