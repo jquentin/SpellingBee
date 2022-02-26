@@ -379,6 +379,9 @@ def button_yesterday_clicked(event):
 def button_report_clicked(event):
     document["report-modal"].style.display = "Block"
 
+def button_info_clicked(event):
+    document["info-modal"].style.display = "Block"
+
 def button_report_submit_clicked(event):
     word = document["report-word-input"].value
     shouldExist = document["report-to-add"].checked
@@ -473,6 +476,7 @@ document["email-submit"].bind('click', button_email_submit_clicked)
 document["yesterday-button"].bind('click', button_yesterday_clicked)
 document["report-button"].bind('click', button_report_clicked)
 document["report-submit"].bind('click', button_report_submit_clicked)
+document["info-button"].bind('click', button_info_clicked)
 
 document.bind('change', document_changed)
 

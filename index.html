@@ -367,6 +367,36 @@
             </div>
         </div>
 
+
+        <div id="info-modal" class="modal">
+            <div class="modal-content">
+
+                <span id="info-close-btn" class="modal-close-btn close" style="position: relative; top: -15; right: -5;">&times;</span>
+                <h1 style="
+                          text-align: center;
+                          font-weight: bold;
+                          padding: 0 0 20 0;
+                      ">
+                    How to play
+                    <img id="info-loading" src="https://c.tenor.com/I6kN-6X7nhAAAAAi/loading-buffering.gif" style="
+                              display: none;
+                              width: 20;
+                              margin: 0 0 0 10;
+                              position: relative;
+                              top: 4;
+                          ">
+                </h1>
+                <ul style="padding: 0px 30px;">
+                    <li>Create words using the 7 letters provided</li>
+                    <li>Words must contain at least 3 letters</li>
+                    <li>Words must contain the central letter</li>
+                    <li>Letters can be used more than once</li>
+                    <li>There is at least 1 "pangram" for each puzzle. Pangrams are words that use all 7 letters.</li>
+                    <li>Letters are unaccented, and words with non-alpha characters (like dash or apostrophe) are excluded</li>
+                </ul>
+            </div>
+        </div>
+
         <button id="report-button" style="
             position: absolute;
             bottom: 10px;
@@ -378,6 +408,19 @@
             padding: 0px;
             ">
             <img src="https://static.wikia.nocookie.net/among-us-wiki/images/9/94/Report.png" height="40" width="40">
+        </button>
+
+        <button id="info-button" style="
+                position: absolute;
+                bottom: 10px;
+                left: 10px;
+                /* background-image: url(https://static.wikia.nocookie.net/among-us-wiki/images/9/94/Report.png/revision/latest/scale-to-width-down/314?cb=20210714123920); */
+                border: 0px;
+                background-color: transparent;
+                text-align: right;
+                padding: 0px;
+                ">
+            <img src="https://cdn-icons.flaticon.com/png/512/604/premium/604573.png?token=exp=1645888030~hmac=20911cabce94abf40dcd3d329c6844c1" height="40" width="40">
         </button>
 
 
