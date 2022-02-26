@@ -9,7 +9,7 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.6">
+        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.74">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <script>
             function displayLeaderboard(evt, name) {
@@ -87,6 +87,9 @@
               </div>
 
                <div class="sb-controls-box">
+                   <div class="yesterday-box">
+                       <button id="yesterday-button">Yesterday</button>
+                   </div>
                    <div class="sb-controls">
                        <div class="sb-message-box"></div>
                        <div class="sb-hive-input">
@@ -131,14 +134,6 @@
                            <div id="button_shuffle" type="button" class="hive-action hive-action__shuffle sb-touch-button" style="touch-action: manipulation;"></div>
                        </div>
                    </div>
-               </div>
-              <div class="yesterday-box" style="
-                margin: 0px 12px;
-                display: block;
-                position: absolute;
-                top: 120px;
-">
-                   <button id="yesterday-button">Yesterday</button>
                </div>
            </div>
         </div>
@@ -420,7 +415,7 @@
                 text-align: right;
                 padding: 0px;
                 ">
-            <img src="https://cdn-icons.flaticon.com/png/512/604/premium/604573.png?token=exp=1645888030~hmac=20911cabce94abf40dcd3d329c6844c1" height="40" width="40">
+            <img src="info.png" height="40" width="40">
         </button>
 
 
