@@ -319,9 +319,11 @@ def button_expand_wordlist_clicked(event):
     if "sb-expanded" in sb_content_box.class_name:
         sb_content_box.class_name = "sb-content-box"
         document["yesterday-button"].style.display = "Block"
+        document.select(".sb-toggle-icon")[0].style.transform = "rotate(270deg)"
     else:
         sb_content_box.class_name = "sb-content-box sb-expanded"
         document["yesterday-button"].style.display = "None"
+        document.select(".sb-toggle-icon")[0].style.transform = "rotate(90deg)"
 
 def update_leaderboard(scores_list, scores):
 
