@@ -470,8 +470,8 @@
 .sb-wordlist-heading {
 	position: relative;
 	overflow: hidden;
-	height: 45px;
-	line-height: 45px
+	height: 35px;
+	line-height: 35px
 }
 
 .sb-placeholder-text {
@@ -480,7 +480,7 @@
 
 .sb-wordlist-summary,
 .sb-recent-words-wrap {
-	padding: 0 20px;
+	padding: 1px 12px;
 	position: relative;
 	transition: all 270ms ease
 }
@@ -495,6 +495,14 @@
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	overflow: hidden
+}
+
+.sb-wordlist-box {
+	border-radius: 6px;
+	border: 1px solid #dcdcdc;
+	overflow: hidden;
+	letter-spacing: 0.005em;
+	margin: 8px 12px 4px 12px;
 }
 
 .sb-expanded .sb-recent-words-wrap {
@@ -514,8 +522,8 @@
 	position: absolute;
 	top: 0;
 	right: 0;
-	width: 45px;
-	height: 45px;
+	width: 35px;
+	height: 35px;
 	background: #fff;
 	box-shadow: 0px 0px 20px 5px #fff;
 	transition: all 100ms ease;
@@ -615,7 +623,7 @@
 
 .sb-recent-words>li {
 	max-width: 200px;
-	height: 45px;
+	height: 35px;
 	display: flex;
 	align-items: center;
 	float: left;
@@ -2362,8 +2370,8 @@ button.pz-mobile-nav__toolbar-item {
 }
 .custom-radios input[type=radio] + label span {
 	display: inline-block;
-	width: 20px;
-	height: 20px;
+	width: 18px;
+	height: 18px;
 	margin: -1px 4px 0 0;
 	vertical-align: middle;
 	cursor: pointer;
@@ -2373,7 +2381,8 @@ button.pz-mobile-nav__toolbar-item {
 	background-repeat: no-repeat;
 	background-position: center;
 	text-align: center;
-	line-height: 22px;
+	line-height: 20px;
+	background-size: 18px 18px;
 }
 .custom-radios input[type=radio] + label span img {
 	opacity: 0;
@@ -2381,15 +2390,12 @@ button.pz-mobile-nav__toolbar-item {
 }
 .custom-radios input[type=radio]#lang-en + label span {
 	background-image: url("https://cdn-icons-png.flaticon.com/128/197/197374.png");
-	background-size: 20px 20px;
 }
 .custom-radios input[type=radio]#lang-fr + label span {
 	background-image: url("https://cdn-icons-png.flaticon.com/512/197/197560.png");
-	background-size: 20px 20px;
 }
 .custom-radios input[type=radio]#lang-de + label span {
 	background-image: url("https://cdn-icons-png.flaticon.com/512/197/197571.png");
-	background-size: 20px 20px;
 }
 .custom-radios input[type=radio]:checked + label span {
 	opacity: 1;
