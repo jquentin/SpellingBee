@@ -214,6 +214,7 @@ def set_bee_and_start(bee_json):
     print("Starting game")
     bee.guess()
     words_found = set(bee_json["wordsFound"])
+    window.setupTimer(bee_json["timeLeft"])
 
     update_letters()
     update_word()

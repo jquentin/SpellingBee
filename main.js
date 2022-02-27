@@ -55,6 +55,39 @@ window.rpc = async function (id, input, callback)
     const response = await client.rpc(session, id, input);
     callback(response.payload);
 }
+var initTime;
+var initTimeLeft;
+window.setupTimer = function (timeLeft)
+{
+    initTime = new Date();
+    initTimeLeft = timeLeft;
+    updateTimer();
+}
+
+updateTimer = function ()
+{
+    const timeLeft = initTimeLeft - (new Date().getTime() - initTime.getTime());
+    if (timeLeft <= 0)
+    {
+        location.reload(true);
+        return;
+    }
+    document.getElementById("timer-txt").innerHTML = `Next in:<br>${msToTime(timeLeft)}`;
+    setTimeout(updateTimer, 1000, timeLeft - 1000);
+}
+
+function msToTime(duration) {
+    var milliseconds = Math.floor((duration % 1000) / 100),
+        seconds = Math.floor((duration / 1000) % 60),
+        minutes = Math.floor((duration / (1000 * 60)) % 60),
+        hours = Math.floor((duration / (1000 * 60 * 60)) % 24);
+
+    hours = (hours < 10) ? "0" + hours : hours;
+    minutes = (minutes < 10) ? "0" + minutes : minutes;
+    seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+    return hours + "h" + minutes + "m" + seconds + "s";
+}
 
 window.list_scores = async function (leaderboardId, callback)
 {

@@ -2542,8 +2542,17 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	display: block;
 	position: absolute;
 	left: 0px;
-	top: 10px;
+	top: 4px;
+	display: flex;
+	justify-content: space-between;
+	right: 4px;
+	text-align: right;
 }
+
+#yesterday-button {
+	height: 24px;
+}
+
 @media (min-width: 768px) {
 
 	.yesterday-box {
