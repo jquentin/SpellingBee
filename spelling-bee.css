@@ -624,7 +624,6 @@
 .sb-recent-words>li {
 	max-width: 200px;
 	height: 35px;
-	display: flex;
 	align-items: center;
 	float: left;
 	padding-right: 7px;
@@ -2413,7 +2412,8 @@ button.pz-mobile-nav__toolbar-item {
 .sb-wordlist-drawer { position:relative; top:-45px; width:90% }
 
 .rainbow-text {
-	background-image: linear-gradient(to left, violet, indigo, blue, green, #f7da21, orange, red);   -webkit-background-clip: text;
+	background-image: linear-gradient(to left, violet, indigo, blue, green, #f7da21, orange, red);
+	background-clip: text;
 	color: transparent;
 }
 
