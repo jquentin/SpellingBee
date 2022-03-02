@@ -38,6 +38,13 @@ KEY_OTHER_WORDS = "other_words"
 KEY_LETTERS = "letters"
 KEY_BEES = "bees"
 KEY_SHUFFLE_VERSION = "shuffle_version"
+KEY_MIN_DIFF = "min_diff"
+KEY_MAX_DIFF = "max_diff"
+KEY_MIN_VARIETY_RATE = "min_variety_rate"
+KEY_MAX_PANGRAMS = "max_pangrams"
+
+DEFAULT_MIN_VARIETY_RATE = 0.75
+DEFAULT_MAX_PANGRAMS = 1000
 
 os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
 
@@ -130,16 +137,24 @@ class Bee:
             for w in words:
                 if w.letters == word.letters:
                     pangrams.add(w.word)
-                    if len(pangrams) > 1:
+                    if len(pangrams) > max_pangrams:
                         return res
                 elif w.letters.issubset(word.letters):
                     all_other_words.add(w)
+            if len(all_other_words) < diff_min:
+                return res
             for center in sorted(word.letters):
                 other_words = set()
                 for w in all_other_words:
                     if center in w.letters:
                         other_words.add(w.word)
-                res.add(Bee(word.letters, center, pangrams, other_words))
+                        # For optimization
+                        if len(other_words) > diff_max:
+                            break
+                if diff_min <= len(other_words) <= diff_max:
+                    bee = Bee(word.letters, center, pangrams, other_words)
+                    if bee.get_variety_rate() >= min_variety_rate:
+                        res.add(bee)
         return res
                 
     @staticmethod
@@ -167,6 +182,19 @@ class Bee:
     def show_letters_sorted(self):
         other_letters_sorted = sorted(list(self.letters - set(self.center)))
         return f"{self.center}{''.join(other_letters_sorted)}"
+
+    def get_variety_rate(self):
+        independent_count = 0
+        all_words = self.other_words.union(self.pangrams)
+        for word in all_words:
+            is_independent = True
+            for other_word in all_words - {word}:
+                if word.startswith(other_word):
+                    is_independent = False
+                    break
+            if is_independent:
+                independent_count += 1
+        return independent_count / len(all_words)
     
     def __str__(self):
         return f"{self.show_letters()} -> {len(self.other_words)+1}: {','.join(self.pangrams)},{','.join(self.other_words)}"
@@ -185,8 +213,6 @@ class HashedBee(Bee):
             print(f"{len(pangrams_found)}/{len(self.pangrams)} pangrams found: {','.join(sorted(pangrams_found))}")
             word = input()
             hash_word = str(hash(word))
-            if verbose:
-                print(f"hash: {hash_word}")
             if word == "":
                 continue
             elif word == "s" or word == "r":
@@ -219,7 +245,6 @@ class HashedBee(Bee):
     
 print_all = False
 write_file = False
-verbose = False
 search_bee = None
 diff_min = 10
 diff_max = 50
@@ -227,6 +252,8 @@ date = datetime.date.today()
 url = None
 shuffle_bees = False
 shuffle_version = ""
+min_variety_rate = DEFAULT_MIN_VARIETY_RATE
+max_pangrams = DEFAULT_MAX_PANGRAMS
 
 if locale.getlocale()[0] is None:
     locale.setlocale(locale.LC_ALL, '')
@@ -236,7 +263,7 @@ else:
     language = DEFAULT_LANGUAGE
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "n:lwvg:s:d:u:r:m:M:", ["words-count", "list", "write", "verbose", "language", "search", "date", "url", "random", "min", "max"])
+    opts, args = getopt.getopt(sys.argv[1:], "n:lwg:s:d:u:r:m:M:v:p:", ["words-count", "list", "write", "language", "search", "date", "url", "random", "min", "max", "variety", "pangrams"])
 except getopt.GetoptError as err:
     print("error options")
     sys.exit(2)
@@ -266,6 +293,10 @@ for o, a in opts:
     elif o == "-r":
         shuffle_bees = True
         shuffle_version = a
+    elif o == "-v":
+        min_variety_rate = a
+    elif o == "-p":
+        max_pangrams = a
             
         
 def generate_bees():
@@ -300,6 +331,10 @@ def write_bees_to_file(bees, hash_words, file_path):
     dict = {}
     if shuffle_bees:
         dict[KEY_SHUFFLE_VERSION] = shuffle_version
+    dict[KEY_MIN_DIFF] = diff_min
+    dict[KEY_MAX_DIFF] = diff_max
+    dict[KEY_MIN_VARIETY_RATE] = min_variety_rate
+    dict[KEY_MAX_PANGRAMS] = max_pangrams
     dict[KEY_BEES] = []
     print("Creating bees dictionary")
     for b in bees:
