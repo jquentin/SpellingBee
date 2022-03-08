@@ -29,10 +29,17 @@ window.get_language = function()
 
 window.submit_word = async function(word, language)
 {
-    console.log("SubmitWord: %s ; in language: %s", word, language);
-    var session = await client.authenticateDevice(deviceId);
-    var response = await client.rpc(session, "SubmitWord", JSON.stringify({ word: word, language: language }));
-    console.log("SubmitWord response: %s", response);
+    try
+    {
+        console.log("SubmitWord: %s ; in language: %s", word, language);
+        var session = await client.authenticateDevice(deviceId);
+        var response = await client.rpc(session, "SubmitWord", JSON.stringify({word: word, language: language}));
+        console.log("SubmitWord response: %s", response);
+    }
+    catch (e)
+    {
+        setTimeout(window.submit_word, 10000, word, language)
+    }
 }
 
 window.get_todays_bee = async function (language, callback)
