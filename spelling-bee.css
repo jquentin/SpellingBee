@@ -2579,3 +2579,7 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	border: 0px;
 	background-color: transparent;
 }
+#modal-content-share {
+	top: 35%;
+	height: 20px;
+}
