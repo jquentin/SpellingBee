@@ -191,7 +191,7 @@ sb_recent_words = document.select(".sb-recent-words")[0]
 sb_content_box = document.select(".sb-content-box")[0]
 sb_message_box = document.select(".sb-message-box")[0]
 progress_bar = document["progress-bar"]
-progress_text = document["progress-text"]
+progress_text = document["progress-text-text"]
 leaderboard_btn = document["leaderboard-btn"]
 leaderboard_modal = document["leaderboard-modal"]
 account_modal = document["account-modal"]
@@ -390,6 +390,19 @@ def button_report_clicked(event):
 def button_info_clicked(event):
     document["info-modal"].style.display = "Block"
 
+def button_share_clicked(event):
+    text = ""
+    for i in range(len(bee.other_words) + len(bee.pangrams)):
+        text += "🟨" if i < len(words_found) else "⬛"
+    text += f"\nI found {len(words_found)}/{len(bee.other_words) + len(bee.pangrams)} words.\nThink you can do better?\nhttp://word-hive.games/spellathon"
+    window.copyToClipboard(text)
+    document["share-modal"].style.display = "Block"
+    timer.set_timeout(hide_share_modal, 1000)
+
+def hide_share_modal():
+    document["share-modal"].style.display = "None"
+
+
 def button_report_submit_clicked(event):
     word = document["report-word-input"].value
     shouldExist = document["report-to-add"].checked
@@ -485,6 +498,7 @@ document["yesterday-button"].bind('click', button_yesterday_clicked)
 document["report-button"].bind('click', button_report_clicked)
 document["report-submit"].bind('click', button_report_submit_clicked)
 document["info-button"].bind('click', button_info_clicked)
+document["share-button"].bind('click', button_share_clicked)
 
 document.bind('change', document_changed)
 

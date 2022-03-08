@@ -2572,3 +2572,10 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 	height: 16px;
 	top: 4px;
 }
+.share-button {
+	width: 35px;
+	height: 35px;
+	text-align: center;
+	border: 0px;
+	background-color: transparent;
+}

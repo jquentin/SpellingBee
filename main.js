@@ -62,6 +62,12 @@ window.rpc = async function (id, input, callback)
     const response = await client.rpc(session, id, input);
     callback(response.payload);
 }
+
+window.copyToClipboard = function(text)
+{
+    navigator.clipboard.writeText(text);
+}
+
 var initTime;
 var initTimeLeft;
 window.setupTimer = function (timeLeft)

@@ -56,7 +56,12 @@
                     <span role="presentation">
                         <div class="w3-light-grey w3-round-large" id="progress-bar-container">
                             <div id="progress-text-container">
-                                <div id="progress-text"></div>
+                                <div id="progress-text">
+                                    <text id="progress-text-text"></text>
+                                    <button id="share-button" class="share-button">
+                                        <img src="share.png" width="15px" height="15px" style="margin: 0px 0px 4px 0px;">
+                                    </button>
+                                </div>
                             </div>
                             <div id="progress-bar" class="w3-container w3-yellow w3-round-large" style="width:0%"></div>
                         </div>
@@ -386,6 +391,12 @@
                     <li>There is at least 1 "pangram" for each puzzle. Pangrams are words that use all 7 letters.</li>
                     <li>Letters are unaccented, and words with non-alpha characters (like dash or apostrophe) are excluded</li>
                 </ul>
+            </div>
+        </div>
+
+        <div id="share-modal" class="modal">
+            <div class="modal-content" id="modal-content-share">
+                <text>Results copied to clipboard.</text>
             </div>
         </div>
 
