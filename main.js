@@ -102,17 +102,23 @@ function msToTime(duration) {
     return hours + "h" + minutes + "m" + seconds + "s";
 }
 
-window.list_scores = async function (leaderboardId, callback)
+window.list_scores = async function (language, callback)
 {
     var session = await client.authenticateDevice(deviceId);
-    var result = await client.rpc(session, "ListLeaderboard", JSON.stringify({ leaderboardId: leaderboardId }));
-    scores = [];
-    console.log(result.payload.records);
-    result.payload.records.forEach(function(record) {
-        console.log(record.username, record.score);
-        scores.push({username: record.username, score: record.score});
-    });
-    callback(scores);
+    var result = await client.rpc(session, "ListLeaderboards", JSON.stringify({ language: language }));
+    console.log(result.payload);
+    allScores = {};
+    for (var leaderboard in result.payload) {
+        console.log(leaderboard);
+        scores = [];
+        console.log(result.payload[leaderboard]);
+        result.payload[leaderboard].records.forEach(function(record) {
+            console.log(record.username, record.score);
+            scores.push({username: record.username, score: record.score});
+        });
+        allScores[leaderboard] = scores;
+    }
+    callback(allScores);
 }
 
 window.update_user = async function (callback)

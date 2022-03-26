@@ -341,6 +341,11 @@ def update_leaderboard(scores_list, scores):
 
     leaderboards_loading.style.display = "none"
 
+def update_leaderboards(all_scores):
+    update_leaderboard(scores_list_today, all_scores["today"])
+    update_leaderboard(scores_list_yesterday, all_scores["yesterday"])
+    update_leaderboard(scores_list_alltimes, all_scores["allTimes"])
+
 def button_leaderboard_clicked(event):
     print("leaderboard_clicked")
     leaderboard_modal.style.display = "block";
@@ -349,9 +354,7 @@ def button_leaderboard_clicked(event):
     scores_list_yesterday.clear()
     scores_list_alltimes.clear()
 
-    window.list_scores(get_today_leaderboard_id(), lambda scores_today : update_leaderboard(scores_list_today, scores_today))
-    window.list_scores(get_yesterday_leaderboard_id(), lambda scores_yesterday : update_leaderboard(scores_list_yesterday, scores_yesterday))
-    window.list_scores(get_all_times_leaderboard_id(), lambda scores_all_times : update_leaderboard(scores_list_alltimes, scores_all_times))
+    window.list_scores(language, lambda scores : update_leaderboards(scores))
 
     window.display_leaderboard("Today")
     leaderboards_loading.style.display = "inline"
