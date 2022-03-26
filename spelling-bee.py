@@ -198,7 +198,12 @@ account_modal = document["account-modal"]
 email_modal = document["email-modal"]
 scores_list_yesterday = document["scores-list-yesterday"]
 scores_list_today = document["scores-list-today"]
+scores_list_last_week = document["scores-list-last-week"]
+scores_list_this_week = document["scores-list-this-week"]
+scores_list_last_month = document["scores-list-last-month"]
+scores_list_this_month = document["scores-list-this-month"]
 scores_list_alltimes = document["scores-list-alltimes"]
+all_score_lists = {scores_list_yesterday, scores_list_today, scores_list_last_week, scores_list_this_week, scores_list_last_month, scores_list_this_month, scores_list_alltimes}
 username_txts = document.select("#username")
 leaderboards_loading = document["leaderboards-loading"]
 
@@ -344,19 +349,22 @@ def update_leaderboard(scores_list, scores):
 def update_leaderboards(all_scores):
     update_leaderboard(scores_list_today, all_scores["today"])
     update_leaderboard(scores_list_yesterday, all_scores["yesterday"])
+    update_leaderboard(scores_list_last_week, all_scores["lastWeek"])
+    update_leaderboard(scores_list_this_week, all_scores["thisWeek"])
+    update_leaderboard(scores_list_last_month, all_scores["lastMonth"])
+    update_leaderboard(scores_list_this_month, all_scores["thisMonth"])
     update_leaderboard(scores_list_alltimes, all_scores["allTimes"])
 
 def button_leaderboard_clicked(event):
     print("leaderboard_clicked")
     leaderboard_modal.style.display = "block";
 
-    scores_list_today.clear()
-    scores_list_yesterday.clear()
-    scores_list_alltimes.clear()
+    for score_list in all_score_lists:
+        score_list.clear()
 
     window.list_scores(language, lambda scores : update_leaderboards(scores))
 
-    window.display_leaderboard("Today")
+    window.display_leaderboard_group("daily")
     leaderboards_loading.style.display = "inline"
 
 def button_account_clicked(event):

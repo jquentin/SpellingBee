@@ -9,11 +9,35 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/brython@3.10.3/brython_stdlib.js">
         </script>
-        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.92">
+        <link rel="stylesheet" type="text/css" href="spelling-bee.css?v=1.96">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <script>
+
+            function displayLeaderboardGroup(evt, name) {
+                window.display_leaderboard_group(name);
+            }
             function displayLeaderboard(evt, name) {
                 window.display_leaderboard(name);
+            }
+
+            window.display_leaderboard_group = function(name){
+                var i, tabcontent, tablinks;
+                tabs = document.getElementsByClassName("subtab");
+                for (i = 0; i < tabs.length; i++) {
+                    if (tabs[i].id == "tabs-leaderboards-" + name) {
+                        tabs[i].style.display = "";
+                        window.display_leaderboard(tabs[i].getElementsByClassName("tablinks")[1].name);
+                    }
+                    else
+                        tabs[i].style.display = "none";
+                }
+                tablinks = document.getElementsByClassName("grouptablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    if (tablinks[i].name == name)
+                        tablinks[i].className += " active";
+                    else
+                        tablinks[i].className = tablinks[i].className.replaceAll(" active", "");
+                }
             }
             
             window.display_leaderboard = function(name){
@@ -25,7 +49,7 @@
                     else
                         tabcontent[i].style.display = "none";
                 }
-                tablinks = document.getElementsByClassName("tablinks");
+                tablinks = document.getElementsByClassName("subtablinks");
                 for (i = 0; i < tablinks.length; i++) {
                     if (tablinks[i].name == name)
                         tablinks[i].className += " active";
@@ -209,11 +233,23 @@
                     top: 4;
                 ">
             </h1>
-            <div class="tab">
-                <button class="tablinks" onclick="displayLeaderboard(event, 'Yesterday')" name="Yesterday">Yesterday</button>
-                <button class="tablinks" onclick="displayLeaderboard(event, 'Today')" name="Today">Today</button>
-                <button class="tablinks" onclick="displayLeaderboard(event, 'AllTimes')" name="AllTimes">All Times</button>
+              <div class="tab">
+                  <button class="tablinks grouptablinks" onclick="displayLeaderboardGroup(event, 'daily')" name="daily">Daily</button>
+                  <button class="tablinks grouptablinks" onclick="displayLeaderboardGroup(event, 'weekly')" name="weekly">Weekly</button>
+                  <button class="tablinks grouptablinks" onclick="displayLeaderboardGroup(event, 'monthly')" name="monthly">Monthly</button>
+              </div>
+            <div class="tab subtab" id="tabs-leaderboards-daily" >
+                <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'Yesterday')" name="Yesterday">Yesterday</button>
+                <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'Today')" name="Today">Today</button>
             </div>
+              <div class="tab subtab" id="tabs-leaderboards-weekly" >
+                  <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'LastWeek')" name="LastWeek">Last Week</button>
+                  <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'ThisWeek')" name="ThisWeek">This Week</button>
+              </div>
+              <div class="tab subtab" id="tabs-leaderboards-monthly" >
+                  <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'LastMonth')" name="LastMonth">Last Month</button>
+                  <button class="tablinks subtablinks" onclick="displayLeaderboard(event, 'ThisMonth')" name="ThisMonth">This Month</button>
+              </div>
               
             <div id="Yesterday" class="tabcontent">
                 <ul id="scores-list-yesterday" style="padding: 10px;"><li>test1yes</li><li>test2yes</li></ul>
@@ -222,7 +258,23 @@
             <div id="Today" class="tabcontent">
                 <ul id="scores-list-today" style="padding: 10px;"><li>test1tod</li><li>test2tod</li></ul>
             </div>
-              
+
+            <div id="ThisWeek" class="tabcontent">
+                <ul id="scores-list-this-week" style="padding: 10px;"><li>test1yes</li><li>test2yes</li></ul>
+            </div>
+
+            <div id="LastWeek" class="tabcontent">
+                <ul id="scores-list-last-week" style="padding: 10px;"><li>test1tod</li><li>test2tod</li></ul>
+            </div>
+
+            <div id="ThisMonth" class="tabcontent">
+                <ul id="scores-list-this-month" style="padding: 10px;"><li>test1yes</li><li>test2yes</li></ul>
+            </div>
+
+            <div id="LastMonth" class="tabcontent">
+                <ul id="scores-list-last-month" style="padding: 10px;"><li>test1tod</li><li>test2tod</li></ul>
+            </div>
+
             <div id="AllTimes" class="tabcontent">
                 <ul id="scores-list-alltimes" style="padding: 10px;"><li>test1all</li><li>test2all</li></ul>
             </div>
